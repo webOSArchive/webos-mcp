@@ -1,0 +1,209 @@
+# webOS SDK Tools
+
+The webOS SDK provides command-line tools for packaging, installing, launching, and communicating with webOS devices and the emulator. The updated SDK for modern machines is available from https://www.webosarchive.org.
+
+All tools operate over a USB connection to a real device or against a running emulator instance.
+
+## palm-package
+
+Packages an app directory into an installable `.ipk` file.
+
+```bash
+palm-package <app-directory>
+
+# Example:
+palm-package com.example.myapp/
+# Output: com.example.myapp_1.0.0_all.ipk
+```
+
+The app directory must contain a valid `appinfo.json`. The output filename is derived from the app ID and version. If packaging fails, check:
+- `appinfo.json` is valid JSON with required fields (`id`, `version`, `vendor`, `type`, `main`, `title`)
+- All files listed in `sources.json` actually exist
+- No files exceed the size limits
+
+## palm-install
+
+Installs a packaged `.ipk` to a connected device or running emulator.
+
+```bash
+palm-install <package.ipk>
+
+# Install to a specific target when multiple are connected:
+palm-install -d <device-id> <package.ipk>
+
+# List connected devices:
+palm-install -l
+
+# Remove an installed app:
+palm-install -r <app-id>
+```
+
+## palm-launch
+
+Launches an installed app or service on the device/emulator.
+
+```bash
+# Launch an app:
+palm-launch <app-id>
+
+# Launch with parameters (passed to the stage assistant):
+palm-launch -p '{"key":"value"}' <app-id>
+
+# Close a running app:
+palm-launch -c <app-id>
+
+# List running apps:
+palm-launch -l
+```
+
+## palm-log
+
+Streams the device log to your terminal. Shows output from `Mojo.Log.*` calls, `console.log` in services, and system events.
+
+```bash
+palm-log <app-id>
+
+# Follow in real time:
+palm-log -f <app-id>
+```
+
+## palm-emulator
+
+Launches the webOS emulator (requires VirtualBox).
+
+```bash
+palm-emulator
+```
+
+The emulator presents as a connected device to other SDK tools. The emulator image and setup instructions are available from https://github.com/webosarchive/webos-emulator.
+
+## novacom
+
+`novacom` is a general-purpose communication tool for webOS devices — the most powerful and versatile tool in the SDK. It provides shell-level access to the device over USB, enabling you to run arbitrary commands, transfer files, watch logs, spelunk the filesystem, and push or pull data.
+
+### Basic Usage
+
+```bash
+# Open an interactive shell on the device:
+novacom -t open tty://
+
+# Run a single command and return output:
+novacom run 'ls /media/internal'
+
+# Run a command as root:
+novacom run 'luna-send -n 1 palm://com.palm.applicationManager/listApps {}'
+```
+
+### File Transfer
+
+```bash
+# Copy a file FROM the device to your machine:
+novacom get file:///path/on/device /local/path
+
+# Copy a file TO the device:
+novacom put file:///path/on/device < /local/file
+
+# Example — grab a log file:
+novacom get file:///var/log/messages ./device-messages.log
+
+# Example — push a file to the device:
+novacom put file:///media/internal/myfile.txt < ./myfile.txt
+```
+
+### Log Watching
+
+```bash
+# Stream the system log in real time:
+novacom run 'tail -f /var/log/messages'
+
+# Filter for your app's output:
+novacom run 'logread -f' | grep 'com.example.myapp'
+```
+
+### Filesystem Spelunking
+
+```bash
+# Explore app installation directories:
+novacom run 'ls /usr/palm/applications/'
+novacom run 'ls /media/cryptofs/apps/usr/palm/applications/'
+
+# Check what's running:
+novacom run 'ps aux'
+
+# Check disk usage:
+novacom run 'df -h'
+
+# Read a config file on the device:
+novacom run 'cat /usr/palm/applications/com.example.myapp/appinfo.json'
+```
+
+### Luna Bus Interaction
+
+```bash
+# Send a Luna command directly from the host via novacom:
+novacom run 'luna-send -n 1 palm://com.palm.applicationManager/listApps {}'
+novacom run 'luna-send -n 1 palm://com.palm.connectionmanager/getStatus {}'
+
+# Subscribe to ongoing Luna updates:
+novacom run 'luna-send -i palm://com.palm.connectionmanager/getStatus {"subscribe":true}'
+```
+
+### Force-Pushing Bits (Advanced)
+
+```bash
+# Push a new version of a file directly (bypass packaging/install):
+novacom put file:///usr/palm/applications/com.example.myapp/app/assistants/main-assistant.js \
+  < app/assistants/main-assistant.js
+
+# Then restart the app:
+novacom run 'luna-send -n 1 palm://com.palm.applicationManager/close {"processId":"1234"}'
+novacom run 'luna-send -n 1 palm://com.palm.applicationManager/launch {"id":"com.example.myapp"}'
+```
+
+> Force-pushing files is useful during development to avoid the full package/install cycle. Changes survive until the device is rebooted or the app is reinstalled.
+
+### Targeting Specific Devices
+
+When multiple devices are connected:
+```bash
+# List connected devices:
+novacom -l
+
+# Run command on a specific device:
+novacom -t -d <device-name> open tty://
+```
+
+## luna-send
+
+`luna-send` is a command-line tool for making Luna service calls. It can be run on the device via novacom or (in some SDK configurations) directly on the host.
+
+```bash
+# Single call (returns one response):
+luna-send -n 1 palm://com.palm.applicationManager/listApps {}
+
+# Subscription (returns ongoing responses, Ctrl+C to stop):
+luna-send -i palm://com.palm.connectionmanager/getStatus '{"subscribe":true}'
+```
+
+## Workflow: Typical Development Loop
+
+```bash
+# 1. Edit code
+# 2. Package:
+palm-package com.example.myapp/
+
+# 3. Install:
+palm-install com.example.myapp_1.0.0_all.ipk
+
+# 4. Launch:
+palm-launch com.example.myapp
+
+# 5. Watch logs:
+palm-log -f com.example.myapp
+
+# --- or for rapid iteration, skip packaging and force-push changed files:
+novacom put file:///usr/palm/applications/com.example.myapp/app/assistants/main-assistant.js \
+  < app/assistants/main-assistant.js
+palm-launch -c com.example.myapp
+palm-launch com.example.myapp
+```
