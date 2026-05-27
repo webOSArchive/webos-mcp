@@ -1,6 +1,6 @@
 # webos-mcp
 
-An MCP (Model Context Protocol) server that gives Claude deep, persistent knowledge of Palm/HP webOS development — so you don't have to re-teach the platform basics every session, and neither does anyone else. This effort compliments the SDK restoration at [sdk.webosarchive.org](https://sdk.webosarchive.org)
+An MCP (Model Context Protocol) server that gives Claude deep, persistent knowledge of legacy Palm/HP webOS development — so you don't have to re-teach Claude platform basics every session, and neither does anyone else. This effort compliments the SDK restoration at [sdk.webosarchive.org](https://sdk.webosarchive.org)
 
 This covers the **original Palm/HP webOS (2009–2012)**, not LG's webOS TV platform. Maintained in conjunction with the [webOS Archive](https://www.webosarchive.org) project.
 
