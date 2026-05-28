@@ -37,30 +37,26 @@ This package solves that with a two-layer approach:
 
 **Prerequisites:** Node.js 18+, Claude Code CLI
 
-Add the server to your global Claude Code config at `~/.claude/claude_desktop_config.json`:
+Run this command once — no separate `npm install` needed:
 
-```json
-{
-  "mcpServers": {
-    "webos": {
-      "command": "npx",
-      "args": ["-y", "webos-mcp"]
-    }
-  }
-}
+```bash
+claude mcp add webos-mcp -s user -- npx -y webos-mcp
 ```
 
-Restart Claude Code (or run `/mcp` to reload servers). That's it — the server is now available in every Claude Code session.
+The `-s user` flag registers the server globally (available in every project). The server starts automatically in new Claude Code sessions — you can verify it's connected with `claude mcp list`.
 
-> **Running locally instead of npx?**
+> **Running a local clone instead of npx?**
+> ```bash
+> claude mcp add webos-mcp -s user -- node /path/to/webos-mcp/index.js
+> ```
+
+> **Prefer to edit `~/.claude.json` manually?** Add this under the top-level `mcpServers` key:
 > ```json
-> {
->   "mcpServers": {
->     "webos": {
->       "command": "node",
->       "args": ["/path/to/webos-mcp/index.js"]
->     }
->   }
+> "webos-mcp": {
+>   "type": "stdio",
+>   "command": "npx",
+>   "args": ["-y", "webos-mcp"],
+>   "env": {}
 > }
 > ```
 
@@ -178,18 +174,13 @@ Or manually trigger the session prompt if you're starting a webOS session outsid
 
 ## Project-Level Config (alternative to global)
 
-If you only want the MCP server active for webOS projects, use a `.mcp.json` file in the project root instead of the global config:
+If you only want the MCP server active for specific webOS projects, register it at project scope instead:
 
-```json
-{
-  "mcpServers": {
-    "webos": {
-      "command": "npx",
-      "args": ["-y", "webos-mcp"]
-    }
-  }
-}
+```bash
+claude mcp add webos-mcp -s project -- npx -y webos-mcp
 ```
+
+This writes to `.mcp.json` in the project root (commit it to share with your team). Team members will be prompted to approve the server the first time they open the project.
 
 ---
 
