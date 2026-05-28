@@ -1,6 +1,6 @@
 # webOS PDK (Plug-in Development Kit)
 
-The PDK allows native C/C++ Linux apps to run on webOS devices. PDK apps are compiled for ARM Linux, packaged as `.ipk` files just like JS apps, and run directly on the device's Linux kernel. This is how games, emulators, and compute-intensive apps were built for webOS.
+The PDK allows native C/C++ Linux apps to run on webOS devices. PDK apps are compiled for ARM Linux, packaged as `.ipk` files just like JS apps, and run directly on the device's Linux kernel. This is how games, emulators, and compute-intensive apps were built for webOS. The approach is called PDL, which is Palm's implementation of SDL.
 
 > **Scope**: This document focuses on the HP TouchPad (webOS 3.0.5) as the primary PDK target. Phone PDK development exists but is less documented in modern practice.
 

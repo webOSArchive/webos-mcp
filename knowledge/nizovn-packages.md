@@ -1,6 +1,6 @@
 # nizovn Add-on Packages & Modern PDK Porting
 
-Community member nizovn ported Qt 5, a newer glibc, OpenSSL, and related libraries to webOS as installable packages. This makes it possible to build and run significantly more modern C++/Qt software on original webOS hardware than HP's PDK alone supports. Several community ports (QupZilla browser, VLC media player) use this foundation.
+Community member nizovn ported Qt 5, a newer glibc, OpenSSL, and related libraries to webOS as installable packages. This makes it possible to build and run significantly more modern C++/Qt software on original webOS hardware than HP's PDK alone supports. Several community ports (QupZilla browser, VLC media player) use this foundation, which compliments the SDL/PDL support built-into the PDK.
 
 ---
 
@@ -24,7 +24,7 @@ All of these (plus any extras needed by your app) should be distributed alongsid
 
 ## The webOS Jail/Sandbox System
 
-webOS runs PDK apps in a **jail** (sandbox) as the `prisoner` user. By default, an app can only see its own install directory under `/media/cryptofs/apps/usr/palm/applications/`. This means Qt5 and glibc, installed as separate packages, are invisible to your app unless explicitly mounted into the jail.
+webOS runs PDK apps in a **jail** (sandbox) as the `prisoner` user. By default, an app can only see its own install directory under `/media/cryptofs/apps/usr/palm/applications/` and user storage at `/media/internal`. This means Qt5 and glibc, installed as separate packages, are invisible to your app unless explicitly mounted into the jail.
 
 ### How the Jailer Works
 
@@ -451,6 +451,12 @@ novacom get file://media/internal/myapp.log
 - Between kill and relaunch: wait at least 15 seconds
 
 Use `palm-launch` (non-blocking) for iteration scripts, not `palm-run` (which streams stdout and kills the app if the script exits).
+
+---
+
+## See Also
+
+- `webos://knowledge/pdk.md` — PDK provides PDL, Palm's version of SDL
 
 ---
 

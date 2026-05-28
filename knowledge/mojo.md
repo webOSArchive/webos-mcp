@@ -188,3 +188,4 @@ this.controller.modelChanged(this.myListModel);
 - `webos://knowledge/alarms` — background timers that fire when device is sleeping; the right way to do periodic work
 - `webos://knowledge/exhibition` — Touchstone dock/Exhibition mode: full implementation including the stageDeactivated lifecycle bug
 - `webos://knowledge/services` — built-in Luna service calls (display, audio, network radios, app management)
+- https://github.com/webOSArchive/webos-common/blob/main/Mojo/com.wosa.mojo.additions.js

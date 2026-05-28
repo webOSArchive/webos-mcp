@@ -10,6 +10,14 @@ Enyo 2.x apps can be distributed as:
 
 The canonical reference implementation is **enyo2-bootplate** (https://github.com/webOSArchive/enyo2-bootplate), which provides the build scaffolding. Production examples: **enyo2-checkmate**, **FeedSpider2**, **webos-papyrus-ereader**.
 
+Enyo 1 apps can be distributed similarily, but require some additional consideration:
+
+- Enyo 1 apps typically expect to find the enyo library on-device
+- The Enyo 1 library wasn't bundled for distribution
+- Enyo 1 support on modern browsers is compromised (although not unusable)
+
+To support portability, a developer must bundle the Enyo library within the app and update the reference to load it from a relative path, rather than the absolute on-device path.
+
 ---
 
 ## Multi-Platform Build System
@@ -24,7 +32,7 @@ project/
 ├── enyo-app/                 # The actual Enyo 2 app
 │   ├── index.html
 │   ├── source/
-│   ├── enyo/
+│   ├── enyo/                 # The Enyo library in-use, typically minified
 │   ├── lib/
 │   └── tools/
 │       └── deploy.sh         # Enyo build tool

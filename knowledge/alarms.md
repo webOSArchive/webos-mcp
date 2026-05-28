@@ -133,7 +133,7 @@ AppAssistant.prototype.handleLaunch = function(params) {
 };
 ```
 
-Also track whether the app was already running and whether the screen was on — you need to restore that state after the alarm fires (see [Cleanup After Alarm](#cleanup-after-alarm)):
+Suggestion: track whether the app was already running and whether the screen was on — in case you need to restore that state after the alarm fires (see [Cleanup After Alarm](#cleanup-after-alarm)):
 
 ```javascript
 // Early in handleLaunch, before async calls:
@@ -218,7 +218,7 @@ var adjustAlarmTimeToToday = function(storedTime) {
 
 ### Re-establishing all alarms after one fires
 
-When any alarm fires, re-schedule **all** alarms. Pass the just-fired alarm's name as `forceAbsoluteOrName` so it gets pushed to tomorrow instead of re-firing immediately:
+Alarms can't fire when the device is off. Alarms are lost when the device is rebooted, battery dies, or if the app crashes without rescheduling. To address, re-schedule **all** alarms after any alarm fires. Pass the just-fired alarm's name as `forceAbsoluteOrName` so it gets pushed to tomorrow instead of re-firing immediately:
 
 ```javascript
 AppAssistant.prototype.manageAllAlarms = function(appSettings, justFiredAlarmName) {
@@ -232,7 +232,7 @@ AppAssistant.prototype.manageAllAlarms = function(appSettings, justFiredAlarmNam
 
 ## Self-Healing on Normal Launch
 
-Alarms are lost when the device is rebooted, doctored, or if the app crashes without rescheduling. Re-establish all alarms on every normal foreground launch. This is cheap and ensures the schedule recovers automatically:
+Alarms are lost when the device is rebooted, battery dies, or if the app crashes without rescheduling. Re-establish all alarms on every normal foreground launch. This is cheap and ensures the schedule recovers automatically:
 
 ```javascript
 MainAssistant.prototype.activate = function(event) {
@@ -247,7 +247,7 @@ MainAssistant.prototype.activate = function(event) {
 
 ## Cleanup After an Alarm Fires
 
-After applying the alarm's action, restore the device to its pre-alarm state. Track two flags before doing any alarm work:
+To improve the user experience, after applying the alarm's action, restore the device to its pre-alarm state. Track two flags before doing any alarm work:
 
 - `ScreenWasOn` — was the screen on when the alarm fired?
 - `AppRunning` — was the app already running in the foreground?
@@ -338,66 +338,9 @@ AlarmAssistant.prototype.setup = function() {
 
 ---
 
-## Weekend Adjustment
-
-If a scheduled alarm should fire later on weekends (e.g., let users sleep in), check the day of week before setting the absolute time. `getDay()` returns 0 (Sunday) and 6 (Saturday):
-
-```javascript
-var checkAdjustAlarmTimeForWeekends = function(alarmTime) {
-    var day = alarmTime.getDay();
-    if (day === 0 || day === 6) {
-        // Weekend — delay by an hour (or whatever adjustment makes sense)
-        alarmTime.setHours(alarmTime.getHours() + 1);
-    }
-    return alarmTime;
-};
-```
-
-Apply this adjustment before calling `constructUTCAlarm`, after determining whether the alarm fires today or tomorrow.
-
----
-
-## Handling Apps That Block Dimming
-
-Some apps (Kindle, ScummVM) hold a wakelock that keeps the screen on, preventing brightness and display-state changes from taking effect. Detect them at launch and handle them before applying alarm settings:
-
-```javascript
-AppAssistant.prototype.checkRunningApps = function(response) {
-    var problemApps = ["com.palm.app.kindle", "org.scummvm.scummvm"];
-    ProblemAppsRunning = [];
-    for (var i = 0; i < response.running.length; i++) {
-        if (problemApps.indexOf(response.running[i].id) !== -1) {
-            ProblemAppsRunning.push(response.running[i].processid);
-        }
-    }
-};
-
-AppAssistant.prototype.handleProblemApps = function() {
-    if (ProblemAppsRunning.length === 0) return;
-
-    if (appModel.AppSettingsCurrent.KillProblemApps) {
-        // Kill the offending app (privileged — requires com.palm.* ID)
-        for (var i = 0; i < ProblemAppsRunning.length; i++) {
-            systemModel.KillApp(ProblemAppsRunning[i]);
-        }
-    } else {
-        // Steal focus instead — bring your own card to the foreground
-        // This is enough to break the wakelock in most cases
-        var stageController = this.controller.getStageController("main");
-        if (stageController) {
-            stageController.activate();
-        }
-    }
-};
-```
-
-`GetRunningApps` returns `{ running: [{ id, processid, ... }] }` via `palm://com.palm.applicationManager`. `KillApp` calls `close` with the `processId`. Both are **privileged** (require `com.palm.*` app ID).
-
----
-
 ## Alarm Coarseness
 
-- The power service fires alarms up to **±2 seconds** late. This is normal and expected.
+- The power service fires alarms up to **±20 seconds** late. This is normal and expected.
 - Alarms that would have fired while the device was powered off **fire on next boot**.
 - Setting the same key twice overwrites — the second call wins.
 - Alarms are **global per key** — if two apps use the same key string, one will overwrite the other. Always prefix with your app ID.
@@ -428,13 +371,10 @@ Useful user-facing messages: `"Next trigger: in seconds."`, `"Next trigger: late
 - [ ] Absolute alarms need UTC time — convert with `getTimezoneOffset()`
 - [ ] Relative alarm format is `"HH:MM:SS:00"` (four colon-separated fields)
 - [ ] Detect alarm launch in `handleLaunch` via `params["action"]`
-- [ ] Track `ScreenWasOn` and `AppRunning` before doing alarm work; restore after
 - [ ] Re-establish all alarms when any one fires (pass fired alarm name to avoid immediate re-fire)
 - [ ] Re-establish alarms on every normal foreground launch (self-heal)
 - [ ] On TouchPad with screen off: unlock/turn on screen, use `popupalert` stage, delay cleanup 2500ms
 - [ ] Use `clickableWhenLocked: true` on the notification stage
-- [ ] Detect and handle display-blocking apps (Kindle, ScummVM) before applying settings
-- [ ] Apply weekend adjustments before constructing UTC alarm time
 
 ---
 

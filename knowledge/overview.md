@@ -2,17 +2,19 @@
 
 ## What is webOS
 
-Palm/HP webOS is a Linux-based mobile operating system originally released by Palm in 2009 (as "webOS 1.0" on the Palm Pre) and continued by HP through version 3.0.5 on the TouchPad (2011). It is distinct from LG's later "webOS" TV platform — when working in this codebase, "webOS" always means the original Palm/HP platform.
+Palm/HP webOS is a Linux-based mobile operating system originally released by Palm in 2009 (as "webOS 1.0" on the Palm Pre) and continued by HP through version 3.0.5 on the TouchPad (2011). It is predecessor of LG's later "webOS" TV platform and webOS OSE Open Source general computing platform — when working in this codebase, "webOS" always means the original Palm/HP platform.
 
 The platform is now maintained and archived by the webOS Archive project at https://www.webosarchive.org, which preserves the SDK, documentation, and app ecosystem.
 
 ## Key Characteristics
 
-- Apps are written in **JavaScript + HTML + CSS** — no native code required for most apps
+- Most Apps are written in **JavaScript + HTML + CSS** — no native code required
+- Services are written in primitive **NodeJS**
 - The OS is **Linux-based**; the underlying system is accessible and hackable
+- Linux apps can be compiled for the platform using the PDK, which includes Palm's version of SDL called PDL
 - Inter-process communication uses the **Luna service bus** (also called "LS2")
-- Backend logic runs as **Node.js services** directly on the device
-- The UI layer runs in a **WebKit browser engine** embedded in the OS
+- Backend logic runs services running on a very early version of **NodeJS** directly on the device
+- The UI layer runs in a very old **WebKit browser engine** embedded in the OS
 
 ## webOS Versions
 
@@ -22,12 +24,12 @@ The platform is now maintained and archived by the webOS Archive project at http
 | 2.0–2.2.4 | Pre 2, Pre 3, Veer | Mojo + early Enyo | Transitional |
 | 3.0–3.0.5 | TouchPad | **Enyo 1** | Tablet form factor |
 
-> Note: Enyo 2 was open-sourced by HP after webOS was discontinued and runs on modern browsers, but was not shipped on original webOS hardware. Most original webOS app development targets Mojo (phones) or Enyo 1 (TouchPad).
+> Note: Enyo 2 was open-sourced by HP after webOS was discontinued and runs on modern browsers, but was not shipped on original webOS hardware. Most original webOS app development targets Mojo (phones) or Enyo 1 (TouchPad). Enyo2 apps can run on TouchPad on Pre3.
 
 ## Application Types
 
 1. **Packaged apps** — JavaScript apps installed as `.ipk` packages, the primary app format
-2. **PDK apps** — Native (C/C++) apps using the Plug-in Development Kit; rare, mostly games
+2. **PDK apps** — Native (C/C++) apps using the Plug-in Development Kit; mostly used for games
 3. **Services** — Node.js processes that run in the background and expose Luna service APIs
 
 ## The Luna Service Bus
@@ -50,7 +52,7 @@ this.controller.serviceRequest('palm://com.palm.service.name/', {
 ## Development Environment
 
 The SDK is available (updated for modern machines) from the webOS Archive:
-https://www.webosarchive.org
+https://sdk.webosarchive.org
 
 Key SDK components:
 - `palm-package` — packages an app directory into an `.ipk`

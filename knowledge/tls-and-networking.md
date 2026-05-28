@@ -125,7 +125,7 @@ var body = stdout.replace(/\n?__HTTP_CODE__:\d+$/, "");
 
 ## wget on webOS
 
-`/usr/bin/wget` is also available and respects the system proxy. It's simpler than curl for straight downloads but lacks:
+`/usr/bin/wget` is also available and respects the system proxy. It's an old version. While its simpler than curl for straight downloads it lacks:
 - Custom HTTP methods (can't do PROPFIND, MKCOL, DELETE, PUT)
 - Fine-grained proxy control (can't bypass the proxy per-request without env var tricks)
 - HTTP code extraction

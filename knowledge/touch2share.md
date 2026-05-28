@@ -8,7 +8,7 @@ Touch2Share is a webOS 2.24 and higher feature (TouchPad, Pre3 and meta-doctored
 
 **What is shared:** A URL (string only). The receiving device opens the URL in the browser by default. To open your own app instead of the browser, register a URL redirect handler (requires a `com.palm.*` app ID — see [Receiving Side](#receiving-side) below).
 
-**Hardware requirement:** TouchPad (webOS 2.2.4+) only. Touch2Share is not available on Pre, Pixi, or Pre 2.
+**Hardware requirement:** TouchPad, Pre3 or a metadoctored Veer (webOS 2.2.4+) only. Touch2Share is not available on Pre, Pixi, or Pre 2.
 
 ---
 

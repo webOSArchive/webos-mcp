@@ -1,6 +1,6 @@
 # Enyo 2.x Framework
 
-Enyo 2 was open-sourced by HP after the webOS platform was discontinued and runs on modern browsers via a build step. It is architecturally related to Enyo 1 (which shipped on the TouchPad) but the APIs are different enough that code is not compatible. Enyo 2 is used for "new generation" webOS apps that also target LuneOS, Android, and web, and for webOS TV (LG).
+Enyo 2 was open-sourced by HP after the webOS platform was discontinued and runs on modern browsers via a build step. It is architecturally related to Enyo 1 (which shipped on webOS) but the APIs are different enough that code is not compatible. Enyo 2 is used for "new generation" webOS apps that also target LuneOS, Android, and web, and for webOS TV (LG).
 
 > **Existing knowledge:** `webos://knowledge/enyo` covers Enyo 1, which shipped on the TouchPad. This file covers Enyo 2.x and its version lineage.
 

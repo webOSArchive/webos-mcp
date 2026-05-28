@@ -1,8 +1,8 @@
 # Enyo Framework
 
-Enyo is the component-based JavaScript UI framework used on the webOS TouchPad (webOS 3.x). It replaced Mojo's scene/assistant pattern with a declarative, composable kind system.
+Enyo is the component-based JavaScript UI framework shipped later in the platform's life. It was built-in to the OS in 2.2.4, and available as an add-on package in Preware for earlier versions. It replaced Mojo's scene/assistant pattern with a declarative, composable kind system.
 
-> **Important:** "Enyo" in the context of original webOS hardware means **Enyo 1** (shipped on the TouchPad). Enyo 2 was open-sourced by HP after the platform was discontinued and runs on modern browsers — it is related but different. Unless otherwise specified, webOS TouchPad development uses Enyo 1.
+> **Important:** "Enyo" in the context of original webOS hardware means **Enyo 1** (shipped on the OS). Enyo 2 was open-sourced by HP after the platform was discontinued and runs on modern browsers — it is related but different. Unless otherwise specified, webOS development uses Enyo 1.
 
 ## Core Concepts
 
@@ -124,7 +124,7 @@ new MyApp().renderInto(document.body);
 
 ### Moonstone / Onyx (Enyo 2 UI libraries — not on original hardware)
 
-Original TouchPad uses the built-in webOS styling; Moonstone and Onyx are Enyo 2 UI libraries for modern environments.
+Original webOS uses the built-in webOS styling; Moonstone and Onyx are Enyo 2 UI libraries for modern environments.
 
 ## Virtual Lists
 

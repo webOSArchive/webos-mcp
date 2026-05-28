@@ -62,7 +62,7 @@ this.sub = new Mojo.Service.Request("palm://com.palm.display/", {
 
 Some services refuse calls from apps whose ID does not start with `com.palm` — enforced at the Luna bus level via role files. The call fails silently (`onFailure` fires) for non-privileged apps.
 
-**Workaround:** Community apps that need privileged access use a `com.palm.*` app ID (e.g., `com.palm.webos.myname.myapp`). This is acceptable for homebrew/Preware distribution; do not use it for the official HP App Catalog.
+**Workaround:** Community apps that need privileged access use a `com.palm.*` app ID (e.g., `com.palm.webos.myname.myapp`). This is acceptable for homebrew/Preware/AppMuseum distribution; Palm is no longer around to enforce the naming privilege.
 
 ```javascript
 // Guard privileged calls client-side for a meaningful error

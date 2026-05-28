@@ -10,7 +10,7 @@ Services enable:
 - **Low-level access** to filesystem, networking, and binary data not available in app JS
 - **Synergy connectors** (every Synergy transport is a JS service)
 
-> **Services require webOS 2.0+.** They are not available on original webOS 1.x devices (Pre, Pixi original).
+> **Services require webOS 2.0+.** Original webOS 1.x devices (Pre, Pixi original) used Java-based services that were not well documented, and not supported here.
 
 ---
 
@@ -30,6 +30,8 @@ A service **must be packaged with an app**, but the app can be a stub with no UI
 
 - App ID: `com.example.myapp`
 - Service ID: must **start with** the app ID — e.g. `com.example.myapp.service` or `com.example.myapp.sync.service`
+- The service ID **must** start with the same base string as its accompanying app's ID
+- The package ID **must** start with the same base string as the contained app and service IDs
 - **No dashes** in service names — only letters, numbers, and dots
 - One service per `services.json` (multiple services per app are not supported)
 
@@ -372,10 +374,10 @@ MyServiceAssistant.prototype.setup = function() {
 
 ## Node.js Environment
 
-Services run in **Node.js v0.2.3** (the version shipped with webOS 2.x). This is a very old version — be aware:
+Services run in **Node.js v0.2.x** (the version shipped with webOS varies a little per release). These are a very old versions — be aware:
 
 - ES5 only — no `const`, `let`, arrow functions, Promises, etc.
-- The standard Node.js modules for v0.2.3 are available (`fs`, `http`, `path`, `net`, `crypto`, etc.)
+- The standard Node.js modules for v0.2.x are available (`fs`, `http`, `path`, `net`, `crypto`, etc.)
 - **JavaScript-only** npm modules can be bundled in the service directory
 - **Native Node.js extensions** (`.node` binary add-ons) are **not allowed**
 - NPM is not available on device — bundle dependencies manually
@@ -433,7 +435,7 @@ If no new commands arrive → service process exits
 Next call restarts the process fresh
 ```
 
-**Do not** set `activityTimeout` to a large value to keep the service alive — this wastes power and can mask bugs. Instead:
+**Do not** set `activityTimeout` to a large value to keep the service alive — this wastes power and can mask bugs since the service will get killed anyway. Instead:
 
 - Use **subscriptions** (open subscription = service stays alive)
 - Use the **Activity Manager** for triggered background work

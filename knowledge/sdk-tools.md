@@ -58,13 +58,21 @@ palm-launch -l
 
 ## palm-log
 
-Streams the device log to your terminal. Shows output from `Mojo.Log.*` calls, `console.log` in services, and system events.
+Streams the device log to your terminal. Shows output from `Mojo.Log.*`, `enyo.log`, `enyo.warn` or `enyo.error` calls in apps, and `console.log` in services. Does not show system logs.
 
 ```bash
 palm-log <app-id>
 
 # Follow in real time:
 palm-log -f <app-id>
+```
+
+## palm-run
+
+Installs a packaged `.ipk` to a connected device or running emulator, launches it, and streams the device log to your terminal. Shows output from `Mojo.Log.*`, `enyo.log`, `enyo.warn` or `enyo.error` calls in apps, and `console.log` in services.  Does not show system logs.
+
+```bash
+palm-run <app-folder>
 ```
 
 ## palm-emulator
@@ -79,7 +87,7 @@ The emulator presents as a connected device to other SDK tools. The emulator ima
 
 ## novacom
 
-`novacom` is a general-purpose communication tool for webOS devices — the most powerful and versatile tool in the SDK. It provides shell-level access to the device over USB, enabling you to run arbitrary commands, transfer files, watch logs, spelunk the filesystem, and push or pull data.
+`novacom` is a general-purpose communication tool for webOS devices — the most powerful and versatile tool in the SDK. It provides shell-level access to the device over USB, enabling you to run arbitrary commands, transfer files, watch system logs, spelunk the filesystem, and push or pull data.
 
 ### Basic Usage
 
@@ -160,7 +168,7 @@ novacom run 'luna-send -n 1 palm://com.palm.applicationManager/close {"processId
 novacom run 'luna-send -n 1 palm://com.palm.applicationManager/launch {"id":"com.example.myapp"}'
 ```
 
-> Force-pushing files is useful during development to avoid the full package/install cycle. Changes survive until the device is rebooted or the app is reinstalled.
+> Force-pushing files is useful during development to avoid the full package/install cycle. Changes survive until the device is rebooted or the app is reinstalled. Be aware of Jails (see gotchas.md)
 
 ### Targeting Specific Devices
 
@@ -189,8 +197,8 @@ luna-send -i palm://com.palm.connectionmanager/getStatus '{"subscribe":true}'
 
 ```bash
 # 1. Edit code
-# 2. Package:
-palm-package com.example.myapp/
+# 2. Launch and follow logs:
+palm-run com.example.myapp/
 
 # 3. Install:
 palm-install com.example.myapp_1.0.0_all.ipk
@@ -207,3 +215,21 @@ novacom put file:///usr/palm/applications/com.example.myapp/app/assistants/main-
 palm-launch -c com.example.myapp
 palm-launch com.example.myapp
 ```
+
+## Workflow: Simulate typical distribution install
+
+```bash
+# 1. Package
+palm-packaging com.example.myapp/
+
+# 3. Install:
+palm-install com.example.myapp_1.0.0_all.ipk
+
+# 4. Launch:
+palm-launch com.example.myapp
+
+# 5. Watch logs:
+palm-log -f com.example.myapp
+```
+
+See gotchas.md for a-typical distribution notes

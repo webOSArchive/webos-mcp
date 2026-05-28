@@ -1,6 +1,6 @@
 # webOS Synergy Services
 
-webOS Synergy is the extensible account/sync framework that backs Contacts, Messaging, and Calendar. Third-party services can add new account types that write into the native apps' data stores by extending system DB8 kinds. The SDK documentation was sparse and often wrong; what follows is distilled from two working services.
+webOS Synergy is the extensible account/sync framework that backs Contacts, Messaging, and Calendar. Third-party services can add new account types that write into the native apps' data stores by extending system DB8 kinds. Official SDK documentation was sparse; what follows is distilled from two working services.
 
 **Reference projects:**
 - **webos-imessage-synergy** (`com.wosa.imessage`) — bridges iMessages from a Mac to the native Messages app

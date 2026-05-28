@@ -241,9 +241,9 @@ AUSMT always does a `patch --dry-run` first. If the patch is already applied (e.
 
 ---
 
-## The Most Common Patch: Hiding Launcher Icons
+## Common Patch: Hiding Launcher Icons
 
-The most frequent patch type adds two fields to an app's `appinfo.json`:
+A frequently created patch type adds two fields to an app's `appinfo.json`:
 
 ```json
 "removable": true,

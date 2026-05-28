@@ -4,8 +4,8 @@ Hard-won knowledge about webOS development — things that aren't obvious and te
 
 ## App Structure
 
-### sources.json — The Silent Failure Trap
-If you add a new JavaScript file to your Mojo app and forget to add it to `sources.json`, it simply won't load. No error, no warning — the code just doesn't exist. Always update `sources.json` when adding files.
+### sources.json or depends.js — The Silent Failure Trap
+If you add a new JavaScript file to app and forget to add it to `sources.json` (Mojo) or `depends.js` (Enyo), it simply won't load. No error, no warning — the code just doesn't exist. Always update `sources.json` or `depends.js` when adding files.
 
 ### appinfo.json Field Requirements
 Missing or malformed `appinfo.json` fields cause `palm-package` to fail or the app to silently not appear in the launcher. Required fields: `id`, `version`, `vendor`, `type`, `main`, `title`. The `icon` field is technically optional but a missing icon shows a broken placeholder in the launcher.
@@ -16,7 +16,7 @@ App IDs must be reverse-domain format (`com.example.myapp`). They must be all lo
 ## Mojo
 
 ### Always Clean Up Event Listeners
-Mojo does not automatically remove event listeners when a scene is popped. If you attach listeners in `setup()`, always remove them in `cleanup()`. Forgetting causes listeners to accumulate across scene pushes/pops and produces duplicate event handling.
+Mojo does not automatically remove event listeners when a scene is popped. If you attach listeners in `setup()`, always remove them in `cleanup()`. Forgetting causes listeners to accumulate across scene pushes/pops and produces duplicate event handling and memory leaks.
 
 ```javascript
 // setup:
@@ -80,6 +80,7 @@ If a Luna service call fails with "service not found" or "unknown method":
 1. Verify the service URI — it must end with `/`
 2. Check the service is installed and running (`novacom run 'ps aux | grep node'`)
 3. Verify the method name exactly matches what the service exposes
+4. Do not call a privileged service from an app whose id does not start with com.palm
 
 ### Subscription Memory
 Subscription-based service calls (`subscribe: true`) keep a persistent connection. Always cancel subscriptions you no longer need or they will keep the service running and consume resources.
@@ -87,21 +88,21 @@ Subscription-based service calls (`subscribe: true`) keep a persistent connectio
 ## Packaging & Installation
 
 ### Version Must Increment
-`palm-install` may silently refuse to install a package if the version string is the same as what's already installed. Increment the version in `appinfo.json` when testing installation from scratch.
+`palm-install` will silently refuse to install a package if the version string lower than what's already installed. Increment the version in `appinfo.json` when testing installation from scratch.
 
 ### cryptofs vs usb Storage
-Apps installed normally go to `/media/cryptofs/` (encrypted storage). Apps on the USB partition go to `/media/internal/`. Some system paths differ between these. When spelunking with novacom, check both locations if you can't find what you expect.
+Apps installed normally go to `/media/cryptofs/` (encrypted storage). Apps may create files on `/media/internal/`. Some system paths differ between these. When spelunking with novacom, check both locations if you can't find what you expect.
 
 ### Reinstall Clears Force-Pushed Files
 If you've been force-pushing files via novacom for rapid development, a full `palm-install` will overwrite them with the packaged versions. Always re-package from your source of truth before a final install.
 
 ## Jails and Caching
-Binaries may be put in a "jail" until the next reboot. The web engine aggressively caches javascript apps (particularly Enyo) between Luna restarts. This can cause confusion when troubleshooting because changes don't seem to work. When an app is jailed or cached, reboot or do a Luna restart to ensure the user is seeing the most up-to-date code.
+Apps may be put in a "jail" until the next reboot, especially if they include a service. The web engine aggressively caches javascript apps (particularly Enyo) between Luna restarts. This can cause confusion when troubleshooting because changes don't seem to work. When an app is jailed or cached, do a Luna restart, or if all else fails, a full reboot to ensure the user is seeing the most up-to-date code. Reboots take a long time, so a Luna restart is preferred (and works) in most cases.
 
 ## Device Communication
 
 ### novacom Requires Device in Developer Mode
-The device must have Developer Mode enabled (available as a downloadable app or via the webOS Archive) before novacom will connect to it. Without it, the device is not visible to SDK tools.
+The device must have Developer Mode enabled (available as a downloadable app or via a code found the webOS Archive) before novacom will connect to it. Without it, the device is not visible to SDK tools.
 
 ### Emulator vs Device Differences
 Some behaviors differ between the emulator and real hardware:
@@ -113,12 +114,12 @@ Some behaviors differ between the emulator and real hardware:
 ## General JavaScript
 
 ### `var` Scope (No `let`/`const`)
-webOS's WebKit engine is from 2009-era — ES5 only for the UI layer. Use `var`, not `let` or `const`. Arrow functions, template literals, destructuring, Promises, etc. are **not available** in the app layer.
+webOS's WebKit engine is from 2009-era — ES5 only for the UI layer. Use `var`, not `let` or `const`. Arrow functions, template literals, destructuring, Promises, fetc, etc. are **not available** in the app layer.
 
-Node.js services run a more modern Node version and may support newer syntax — check which Node version is on the target device.
+Node.js services also run an ancient Node version, that differs between OS releases — check which Node version is on the target device.
 
 ### No CORS, No Same-Origin for XHR
-Apps have elevated privileges and can make cross-origin XHR requests without CORS restrictions. Don't add unnecessary CORS workarounds — they're not needed and can cause confusion.
+Apps have elevated privileges and can make cross-origin XHR requests without CORS restrictions. Don't add unnecessary CORS workarounds unless also targeting modern platforms (see pwa-portability.md) — they're not needed on legacy webOS and can cause confusion.
 
 ---
 

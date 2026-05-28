@@ -21,7 +21,7 @@ com.example.myapp/
 └── sources.json          ← declares JS files to load
 ```
 
-A typical Enyo app (TouchPad):
+A typical Enyo app:
 
 ```
 com.example.myapp/
@@ -30,6 +30,20 @@ com.example.myapp/
 ├── app.js                ← root Enyo kind, app entry point
 ├── source/               ← component kinds
 │   └── MyView.js
+├── images/
+└── stylesheets/
+```
+
+A typical Enyo2+ app (TouchPad):
+
+```
+com.example.myapp/
+├── appinfo.json
+├── index.html
+├── app.js                ← root Enyo kind, app entry point
+├── source/               ← component kinds
+│   └── MyView.js
+├── enyo/                 ← include the enyo library version being used (typically minified)
 ├── images/
 └── stylesheets/
 ```
@@ -65,7 +79,8 @@ Optional fields:
 {
   "noWindow": true,          // headless app (service launcher)
   "universalSearch": [...],  // adds app to universal search
-  "urlPatterns": [...]       // URL scheme handlers
+  "urlPatterns": [...],      // URL scheme handlers
+  "otherFields": ""          // any other fields you wish, can be read by the app
 }
 ```
 
@@ -88,6 +103,20 @@ Declares all JavaScript files that should be loaded for the app. Order matters �
 ```
 
 > All JS files must be listed here or they won't be loaded. This is a common gotcha — adding a new file and forgetting to add it to sources.json causes silent failures.
+
+## depends.js (Enyo)
+
+Declares all files that should be loaded for the app. Order matters — dependencies first.
+
+```json
+enyo.depends(
+	"source/style.css",
+	"helpers/Updater.js",
+	"source/myapp.js"
+);
+```
+
+> All files must be listed here or they won't be loaded. This is a common gotcha — adding a new file and forgetting to add it to sources.json causes silent failures.
 
 ## index.html (Mojo)
 
@@ -139,6 +168,5 @@ The `.ipk` is a renamed `.ar` archive containing:
 ## See Also
 
 - `webos://knowledge/postinst-packaging` — advanced install scripts (postinst/prerm) for apps that need root setup at install time
-- `webos://knowledge/patches` — Preware/AUSMT patches to system files, distributed as `.ipk`
 - `webos://knowledge/updater` — community self-update pattern via App Museum II
 - `webos://knowledge/services` — calling built-in Luna services from your app
