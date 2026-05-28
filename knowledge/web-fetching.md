@@ -133,6 +133,6 @@ The Download Manager does **not** reliably pass HTTP authentication credentials.
 
 ## See Also
 
-- [tls-and-networking.md](tls-and-networking.md) — TLS limitations affecting all of the above, SSL-bump proxy setup, curl via Node.js service (the escape hatch for authenticated and HTTPS downloads)
-- [js-services.md](js-services.md) — Writing the Node.js service that shells out to curl
-- [services.md](services.md) — Full Luna bus services reference
+- `webos://knowledge/tls-and-networking` — TLS limitations affecting all of the above, SSL-bump proxy setup, curl via Node.js service (the escape hatch for authenticated and HTTPS downloads)
+- `webos://knowledge/js-services` — Writing the Node.js service that shells out to curl
+- `webos://knowledge/services` — Full Luna bus services reference

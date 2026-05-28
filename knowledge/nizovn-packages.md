@@ -456,7 +456,7 @@ Use `palm-launch` (non-blocking) for iteration scripts, not `palm-run` (which st
 
 ## See Also
 
-- `webos://knowledge/pdk.md` — PDK provides PDL, Palm's version of SDL
+- `webos://knowledge/pdk` — PDK provides PDL, Palm's version of SDL
 
 ---
 

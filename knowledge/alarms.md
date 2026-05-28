@@ -383,3 +383,4 @@ Useful user-facing messages: `"Next trigger: in seconds."`, `"Next trigger: late
 - `webos://knowledge/system-features` — dashboard stage and `setTimeout` polling (complementary background patterns)
 - `webos://knowledge/services` — other privileged system service calls (display state, app management) used alongside alarm handling
 - `webos://knowledge/exhibition` — practical example of alarm-based time scheduling in an Exhibition app
+- `webos://knowledge/activity-manager` — details of how scheduled activities are controled by the OS
