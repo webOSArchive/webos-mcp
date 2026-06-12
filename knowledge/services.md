@@ -240,3 +240,22 @@ new Mojo.Service.Request("palm://com.palm.db/", {
 ```
 
 `op` values: `"="` exact, `"?"` prefix, `"%"` substring, `">"` / `"<"` numeric.
+
+---
+
+## Caller Identity (Why `Invalid permissions` Happens)
+
+When a service stores per-caller data — keymanager rows, mojodb-owned kinds, accountservices credentials — what it remembers is **the LS2 service name the caller registered as**, not a uid or process ID. That name is governed by an LS2 *role file* binding the calling binary's path to a list of allowed names.
+
+Two errors look similar but mean very different things:
+
+| Error | Source | What it means |
+|---|---|---|
+| `LUNASERVICE ERROR -1027: Invalid permissions for <name>` | the LS2 hub | The calling binary is not allowed to register as `<name>` per its role file. |
+| `{"errorText":"db: permission denied", "errorCode":-3963}` | mojodb (or another service) | You're registered fine, but the target service is rejecting your call (e.g. you're trying to read a kind owned by someone else without a `putPermissions` grant). |
+
+If you need to call a system service *as another app* — to read data your app stored, recover from a stuck registration, or migrate state to a new device — the lever is the LS2 role file for `/usr/bin/luna-send`. See `ls2-roles.md` for the full pattern and safety notes.
+
+### Keymanager specifically
+
+`palm://com.palm.keymanager/` returns only rows whose `ownerID` matches the caller's service name. There is no admin override. The only way to read another app's keys is to call as that app via the role-file trick above. The on-disk backing store is `/var/palm/data/keys.db` (plain SQLite), so as a last resort you can read encrypted-at-rest values directly — but if the app wrapped its values further before storing (some do), you'll still need the app's own crypto to decode them.

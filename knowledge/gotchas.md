@@ -99,6 +99,28 @@ If you've been force-pushing files via novacom for rapid development, a full `pa
 ## Jails and Caching
 Apps may be put in a "jail" until the next reboot, especially if they include a service. The web engine aggressively caches javascript apps (particularly Enyo) between Luna restarts. This can cause confusion when troubleshooting because changes don't seem to work. When an app is jailed or cached, do a Luna restart, or if all else fails, a full reboot to ensure the user is seeing the most up-to-date code. Reboots take a long time, so a Luna restart is preferred (and works) in most cases.
 
+### Jails have their own `/proc`
+A "hybrid jail" gets a fresh `proc` mount under `/var/palm/jail/<appid>/proc`, separate from the host `/proc`. A `mount --bind` on the host `/proc/nduid` (or any other procfs file) is invisible to a jailed process — you have to apply the same bind inside `/var/palm/jail/<appid>/proc/` too. Capabilities are also stripped, so **even root can't `ptrace` a jailed process** — `strace -p $pid` returns `Operation not permitted`. Plan debugging around log analysis, tcpdump, and direct SQLite reads instead. See `system-internals.md`.
+
+## Shell-side `luna-send` output is split between stdout and stderr
+When scripting `luna-send` calls from a shell (e.g. driving the device through `novacom run`), the `payload {...}` line containing the actual response goes to **stderr**, while only `Total time …` goes to **stdout**. Naive `luna-send … > file.json` captures almost nothing. Use `2>&1` to merge them and then grep out the payload:
+
+```sh
+luna-send -t 1 -m com.example.app palm://com.palm.db/find '{"query":{"from":"…:1"}}' > resp.json 2>&1
+# resp.json now contains the timing line on top, the JSON payload after "payload ", and Total time at the end.
+```
+
+## TouchPad BusyBox shortcomings
+The TouchPad's BusyBox does **not** support several common GNU options. Workarounds:
+
+| You wrote | What it actually does on BusyBox | Use instead |
+|---|---|---|
+| `tr -d '[:space:]'` | Deletes literal `[`, `:`, `s`, `p`, `a`, `c`, `e`, `]` | `tr -d ' \t\r\n'` |
+| `head -c 200 file` | `head: invalid option -- 'c'` | `dd if=file bs=1 count=200 2>/dev/null` |
+| `find -regex …` with alternation | May silently miss matches | List branches separately |
+
+The `tr` one in particular has bitten install scripts that try to strip whitespace from control files — see `postinst-packaging.md`.
+
 ## Device Communication
 
 ### novacom Requires Device in Developer Mode
@@ -128,3 +150,5 @@ Apps have elevated privileges and can make cross-origin XHR requests without COR
 - `webos://knowledge/alarms` — background alarm scheduling; includes the critical TouchPad workaround for background execution when screen is off
 - `webos://knowledge/tls-and-networking` — TLS 1.0 limitations and SSL-bump proxy workarounds
 - `webos://knowledge/postinst-packaging` — `palm-install` does not run postinst scripts; must use Preware or WOSQI
+- `webos://knowledge/ls2-roles` — `Invalid permissions` errors and the service-name registration model
+- `webos://knowledge/system-internals` — Encrypted `/var/db`, mountcrypt, jail `/proc`, and other below-the-SDK plumbing

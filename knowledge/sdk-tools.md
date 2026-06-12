@@ -191,7 +191,40 @@ luna-send -n 1 palm://com.palm.applicationManager/listApps {}
 
 # Subscription (returns ongoing responses, Ctrl+C to stop):
 luna-send -i palm://com.palm.connectionmanager/getStatus '{"subscribe":true}'
+
+# Make this exact call as a specific LS2 service name (requires that name to
+# be in the lunasend role file's allowedNames — see ls2-roles.md):
+luna-send -t 1 -m com.example.myapp palm://com.palm.db/find '{"query":{"from":"…:1"}}'
+
+# Average over N calls and print each response's timing (also useful as a
+# blunt-force "wait for response" mode when -n 1 returns too eagerly):
+luna-send -t 5 palm://com.palm.foo/bar '{}'
 ```
+
+### `-t` vs `-n`
+
+| Flag | What it does |
+|---|---|
+| `-n N` | Exit after N responses arrive. `-n 1` is the common "one-shot" idiom. |
+| `-t N` | Time N successive responses and report averages. Useful as a "show me the response, with timing info" mode. |
+| `-i` | Interactive subscription. Keeps printing responses until Ctrl-C. |
+| `-m NAME` | Register as this LS2 service name. Subject to the calling binary's role file. |
+| `-P` | Send over the public bus (default is private). |
+
+### Stdout vs stderr (matters for scripting)
+
+`luna-send` writes the actual response (the `Got response: … payload {…}` line) to **stderr**, not stdout. The `Total time …` summary and byte counts go to stdout. Naive redirection captures the wrong stream:
+
+```bash
+# WRONG — resp.json gets only the timing line, not the response payload:
+luna-send -t 1 palm://com.palm.db/find '{…}' > resp.json
+
+# RIGHT — merge stderr into stdout first:
+luna-send -t 1 palm://com.palm.db/find '{…}' > resp.json 2>&1
+# Now resp.json has the payload line; parse with: sed -n 's/.*payload //p' < resp.json | head -1
+```
+
+The "Got response" line is GLib's `g_message`, which always writes to stderr by design. This is the most common reason a `luna-send` capture script "returns nothing."
 
 ## Workflow: Typical Development Loop
 

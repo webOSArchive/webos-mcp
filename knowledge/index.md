@@ -17,6 +17,7 @@ This directory contains curated reference files for Palm/HP webOS development (w
 | [js-services.md](js-services.md) | Writing Node.js background services that run on-device and register on the Luna bus |
 | [just-type.md](just-type.md) | Just Type (Universal Search) integration — Quick Actions, Search Using, and db8 content search |
 | [localization.md](localization.md) | Localizing strings, app names, and HTML views; Enyo `g11n` date/number formatting |
+| [ls2-roles.md](ls2-roles.md) | LS2 service hub role files — how `Invalid permissions` works, the lunasend impersonation pattern for recovery/migration |
 | [mojo.md](mojo.md) | Mojo framework — the scene/assistant UI pattern for webOS 1.x and 2.x phone apps |
 | [nizovn-packages.md](nizovn-packages.md) | Community-ported Qt 5 and modern libraries enabling newer C++ software on original hardware |
 | [overview.md](overview.md) | Platform overview: history, versions, device families, and key architectural concepts |
@@ -28,6 +29,7 @@ This directory contains curated reference files for Palm/HP webOS development (w
 | [services.md](services.md) | Luna bus services reference — calling built-in system services from Mojo or Enyo apps |
 | [synergy.md](synergy.md) | Synergy framework — extending Contacts, Messaging, and Calendar with third-party accounts |
 | [system-features.md](system-features.md) | System feature overview: Exhibition mode, URL handlers, and other platform capabilities |
+| [system-internals.md](system-internals.md) | Below-the-SDK plumbing — encrypted `/var/db`, mountcrypt/NDUID dependency, boot event graph, jail `/proc`, debug-info-rich binaries, binary patching tricks |
 | [tls-and-networking.md](tls-and-networking.md) | TLS and networking workarounds for the 2009-era TLS stack's incompatibility with the modern web |
 | [touch-and-gestures.md](touch-and-gestures.md) | Touch events, standard gestures, pinch-zoom, and orientation on the TouchPad (Enyo) |
 | [touch2share.md](touch2share.md) | Touch2Share — tapping two devices together to share a URL via the Seamless Transitions service |

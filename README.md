@@ -113,12 +113,14 @@ All files in `knowledge/` are auto-discovered and served as `webos://knowledge/<
 | `webos://knowledge/services` | Luna built-in services quick reference; privileged service calls |
 | `webos://knowledge/js-services` | Writing Node.js background services that register on the Luna bus |
 | `webos://knowledge/synergy` | Synergy account/sync framework — Contacts, Messaging, Calendar integration |
+| `webos://knowledge/ls2-roles` | LS2 hub role files — service-name registration, the lunasend impersonation pattern for recovery/migration |
 
 ### System Features
 
 | Resource | Contents |
 |----------|----------|
 | `webos://knowledge/system-features` | Just Type, `noWindow`, dashboard stage, key events, system sounds |
+| `webos://knowledge/system-internals` | Below-the-SDK plumbing — encrypted `/var/db`, mountcrypt/NDUID, boot event graph, jail `/proc`, debug-info binaries, binary patching |
 | `webos://knowledge/exhibition` | Touchstone dock / Exhibition mode — full implementation guide |
 | `webos://knowledge/alarms` | Background timers via `palm://com.palm.power/timeout`; TouchPad workaround |
 | `webos://knowledge/touch2share` | Touch2Share — tap-to-share URLs over Bluetooth between TouchPads |

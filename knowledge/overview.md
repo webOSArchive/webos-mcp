@@ -81,6 +81,8 @@ Key SDK components:
 | SDK tools (palm-package, novacom…) | `webos://knowledge/sdk-tools` |
 | Calling Luna services from apps | `webos://knowledge/services` |
 | Writing Node.js Luna services | `webos://knowledge/js-services` |
+| LS2 role files and service-name impersonation | `webos://knowledge/ls2-roles` |
+| System internals (encrypted /var/db, boot events, jails, RE) | `webos://knowledge/system-internals` |
 | Synergy account/sync integration | `webos://knowledge/synergy` |
 | Just Type, noWindow, sounds, keys | `webos://knowledge/system-features` |
 | Touchstone dock / Exhibition mode | `webos://knowledge/exhibition` |

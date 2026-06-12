@@ -4,6 +4,8 @@ db8 (`com.palm.db`) is webOS's on-device JSON database, backed by a high-perform
 
 > **Synergy integration:** If you are writing a Synergy connector that extends the system Contacts, Messaging, or Calendar kinds, see `synergy.md` — it covers the db8 permission and kind extension patterns specific to that use case.
 
+> **Where db8 actually lives on disk:** `/var/db/` is mounted from an *encrypted* dm-crypt volume (`store-cryptodb`), unlocked at boot by `mountcrypt` using a key derived from the device's NDUID. If mountcrypt fails (corrupt key blob, NDUID overridden too early in boot, etc.) the system silently falls back to writing to the unencrypted `/var` partition, where BDB transactions abort and no kind registrations or rows ever durably commit — every find then returns `kind not registered`. If you ever see system-wide "kind not registered" errors right after boot, check `mount | grep /var/db` first. See `system-internals.md` for the full diagnosis.
+
 ---
 
 ## Core Concepts
@@ -242,3 +244,5 @@ Deleted objects are not fully removed until an administrative purge. Until then 
 - `webos://knowledge/synergy` — db8 kind extension and permissions for Synergy connectors
 - `webos://knowledge/just-type` — Granting Just Type permission to search your db8 data
 - `webos://knowledge/activity-manager` — Using db8 watch as an Activity trigger
+- `webos://knowledge/ls2-roles` — Why `db: permission denied` happens (caller service-name identity)
+- `webos://knowledge/system-internals` — Encrypted `/var/db`, mountcrypt, and the silent-failure mode
