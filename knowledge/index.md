@@ -23,6 +23,7 @@ This directory contains curated reference files for Palm/HP webOS development (w
 | [overview.md](overview.md) | Platform overview: history, versions, device families, and key architectural concepts |
 | [patches.md](patches.md) | webOS patches via AUSMT/Preware — modifying system files on-device |
 | [pdk.md](pdk.md) | PDK (Plug-in Development Kit) — native C/C++ apps compiled for ARM Linux |
+| [pdk-pre-touchpad-porting.md](pdk-pre-touchpad-porting.md) | Porting Pre PDK apps to TouchPad and improving |
 | [postinst-packaging.md](postinst-packaging.md) | Advanced `.ipk` packaging with `postinst`/`prerm` scripts that run as root |
 | [pwa-portability.md](pwa-portability.md) | Distributing Enyo 2 apps as PWAs or Cordova packages for non-webOS targets |
 | [sdk-tools.md](sdk-tools.md) | Command-line SDK tools for packaging, installing, and communicating with devices |
