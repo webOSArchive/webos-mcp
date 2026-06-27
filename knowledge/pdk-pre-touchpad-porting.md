@@ -6,7 +6,7 @@ A third, easily-misread failure mode has nothing to do with graphics at all: the
 
 This is a field guide for diagnosing and fixing those ports by **binary-patching the shipped `.ipk`** — and, when static analysis stalls, by **tracing the running game's OpenGL calls over USB**. Several of the fixes (memory budget, device gating) need no binary changes at all and stay fully Pre-compatible.
 
-> **Worked examples:** Gameloft's *DRIVER* (2010) shipped garbled and unplayable on the TouchPad — root cause was a per-frame depth-buffer clear the Adreno driver correctly treats as a no-op (see below); fixed and given MSAA/32-bit color/anisotropic filtering entirely by binary patching. EA's *Monopoly* went black the instant the board loaded — a pure memory-quota problem fixed by one `appinfo.json` number. EA's *Tiger Woods PGA Tour* got the graphics lift as a single **universal** build that's enhanced on the TouchPad and falls back cleanly on the Pre.
+> **Worked examples:** Gameloft's *DRIVER* (2010) shipped garbled and unplayable on the TouchPad — root cause was a per-frame depth-buffer clear the Adreno driver correctly treats as a no-op (see below); fixed and given MSAA/32-bit color/anisotropic filtering entirely by binary patching. EA's *Monopoly* went black the instant the board loaded — a pure memory-quota problem fixed by one `appinfo.json` number. EA's *Tiger Woods PGA Tour*, Gameloft's *N.O.V.A.*, and *Modern Combat: Sandstorm* got the graphics lift as single **universal** builds — enhanced on the TouchPad, falling back cleanly on the Pre — all validated on both a real Pre and a TouchPad.
 
 ---
 
@@ -53,6 +53,8 @@ int main(int argc,char**argv){
 ```
 
 > **Trace only — never ship via the launcher.** Running a PDK game through the `execv` launcher / `LD_PRELOAD` path produces a washed-out, over-white render (a webOS PDK quirk). Use it to *observe*; always bake the actual fix into the binary.
+
+> **Don't expect `/dev/fb0` to screenshot the game.** Reading the framebuffer reads black during video cutscenes (those play on a hardware overlay plane that bypasses `fb0`) and is unreliable during 3D — the surface is triple-buffered/panned and the GPU scans out of a buffer `fb0` doesn't map. For judging a graphics change (MSAA smoothness, color banding), the human looking at the screen is the sensor; framebuffer capture will mislead you. (Tip for spotting a working MSAA build *without* a screenshot: if edges look smoother than stock, the HD config was taken — a silent capability-probe fallback renders pixel-identical to stock.)
 
 ---
 
@@ -116,7 +118,8 @@ MemoryMonitor: Monitored native process #807 exceeded its memory quota. ProcMem 
 
 - These binaries are usually **not stripped** — `arm-linux-gnueabi-objdump -d` yields full symbol names. File offset = **VMA − 0x8000** (the first r-x `LOAD` segment).
 - Gameloft Pre ports commonly run a **Glide→GLES1 wrapper**: look for `ogles_Sst*` symbols and `gr*` function pointers in BSS (called indirectly, so direct cross-references read as 0). It's GLES1 fixed-function.
-- Prefer **length-preserving byte patches inside the gzipped `data.tar`**: `gunzip`, seek to the member's data offset (Python `tarfile` exposes `member.offset_data`), patch, `gzip`. Reuse the original `debian-binary` and `control.tar.gz` untouched. The archive is `ar` (`debian-binary`, `control.tar.gz`, `data.tar.gz`); the tar is ustar with absolute paths, owner `root/wheel` (0/0), and the binary stored mode `0644` (PDK binaries don't need the execute bit).
+- Prefer **length-preserving byte patches inside the gzipped `data.tar`**: `gunzip`, seek to the member's data offset (Python `tarfile` exposes `member.offset_data`), patch, `gzip`. Reuse the original `debian-binary` and `control.tar.gz` untouched. The archive is `ar` (`debian-binary`, `control.tar.gz`, `data.tar.gz`); the tar is ustar, owner `root/wheel` (0/0). Path style varies by packager — DRIVER used absolute `/usr/...`, the Gameloft Irrlicht games use `./usr/...` relative; **preserve whatever the original uses**.
+- **Ship the main executable mode `0755`, not `0644`** — for any build that must also run on the Pre. The TouchPad's installer force-chmods installed files to `0777`, so a `0644` binary runs there and *hides* the problem; but the **Pre's jailer refuses to `exec()` a `0644` file** — it logs `jailer: error: Permission denied`, the app registers and appears in the launcher, then dies the instant you tap it. ipkg-based installers (Preware / WebOS Quick Install) chmod on install, which is why stock `0644` games run via those, but `palm-install` preserves `0644` and the Pre then can't launch. When you repack, set the binary's tar header mode to `0755` (and recompute that 512-byte header's checksum, since the mode field is covered by it).
 - **Code caves:** there is no safe zero-gap in `.text`/`.rodata` — every long zero run is a *live, indexed* data table (lookup tables, font tables), and a reference scan for `movw`/`movt`/word-pointers will *not* catch indexed access, so "zero references" is a false negative. The usable cave is **`.ARM.extab` / `.ARM.exidx`** (the C++ exception-unwind tables): they sit in the executable `LOAD` segment but are dead in the gameplay hot path. Verify stability by actually playing on-device.
 - **To add GL calls** (e.g. the depth-mask fix, MSAA, or anisotropy), redirect one existing `bl <fn>` to a stub in the cave that performs the original call plus the extras and returns. Verify the stub with `objdump -D` (capital `D` disassembles data sections too).
 
@@ -127,6 +130,26 @@ MemoryMonitor: Monitored native process #807 exceeded its memory quota. ProcMem 
 - **App-id rename** (to avoid clashing with the Pre version): the binary usually does *not* embed its own id, so change only `appinfo.json`'s `id`/`title`, the install path inside `data.tar`, and `control`'s `Package:`. Distinct ids let the Pre original and the TouchPad build coexist.
 - **TouchPad gating:** add `metadata.json` `{"version":1,"devices":[101]}` in the app directory (it's additive — a well-behaved app that does screen-size detection still runs on phones).
 - Install via **Preware** or **WebOS Quick Install**, not `palm-install` (those run the package's control scripts as root and honor the device metadata).
+
+### Do not rebuild `data.tar.gz` with Python `tarfile` — use `palm-package`
+
+A length-preserving byte patch of the original `data.tar.gz` is safe. **Rebuilding the tar from scratch is not** — for any game whose asset tree has paths longer than 100 characters (most do), those entries require **PAX extended headers**, and Python 3.12's `tarfile` writes PAX records in a form the **ancient on-device tar cannot parse**. The failure is nasty because it's silent and misleading:
+
+- `ipkg` extracts files until it hits the first long-path entry, then bails (`ipkg resultStatus = 1`).
+- But `palm-install` / ApplicationInstaller **swallow the error and report success** (`Install Completed, returning AI_ERR_NONE`, exit 0).
+- You're left with a **partial install** (e.g. ~340 of 3219 files), and the game then **SIGSEGVs in its own file loader** (`FileStream::Load → ftell(NULL)`) the instant it opens a missing asset — which looks exactly like a bad binary patch but isn't.
+- Tell-tale sign: the install truncates at the **same file count every time**, on multiple devices. Short-path games (flat layouts, e.g. a handful of files) escape this entirely because they stay plain `ustar` — which is why one game in a batch can work while its sibling fails identically-built.
+
+**Always verify install completeness by on-device file count, never by the installer's exit code.**
+
+The reliable repack is the official SDK tool, **`palm-package`**:
+
+```bash
+# stage: patched binary (chmod 755), edited appinfo.json (version + requiredMemory), keep metadata.json
+palm-package <app-dir> -o .
+```
+
+It emits a device-compatible tar and a proper `usr/palm/packages/<id>/packageinfo.json` (v2 descriptor). **Caveat: `palm-package` normalizes the binary back to `0644`**, so post-process the resulting `.ipk`: `gunzip` `data.tar.gz`, set the binary member's ustar header mode field to `0100755`, recompute that header's checksum, `gzip`, and reassemble the `ar`. (Equivalently, skip `palm-package` and do a fully length-preserving in-place patch of the *original* `data.tar.gz` — patch the binary bytes, flip its header mode + checksum, and keep `appinfo.json` the same length, e.g. `"version": "1.1.0"`→`"1.2.0"` and `"requiredMemory": 89`→`"requiredMemory":190` by dropping the space — which preserves the original's exact PAX bytes.)
 
 ---
 
@@ -171,3 +194,4 @@ Ship it under the **original** app id (not a separate `*hd` id), bump the versio
 - `webos://knowledge/system-internals` — jails as partial namespaces, why ptrace fails on jailed processes, debug-info-rich binaries, binary-patching tricks
 - `webos://knowledge/nizovn-packages` — the jailer, clearing a stale jail, modern ARM cross-compilation for the device
 - `webos://knowledge/postinst-packaging` — `.ipk` `ar`/tar structure and repacking
+- https://github.com/webOSArchive/Pre-PDK-to-TouchPad-Ports - teaching project for porting Pre apps to TouchPad with graphical improvements
