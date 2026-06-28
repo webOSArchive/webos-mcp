@@ -301,13 +301,77 @@ After any palette change, apply the new palette to **both** surfaces.
 ```
 /media/cryptofs/apps/usr/palm/applications/<app-id>/   ← app install dir, READ-ONLY at runtime
 /media/internal/                                        ← user storage, always writable
-/var/log/messages                                       ← system log (stdout/stderr end up here)
+/var/log/messages                                       ← system log (but NOT where a launcher-
+                                                          launched PDK app's stdout/stderr go —
+                                                          see "How the Launcher Runs a PDK App")
 ```
+
+> **stdout/stderr caveat:** the line above is true only when you run the binary **directly** from a
+> novacom shell. A PDK app launched **from the launcher** runs in a jail and its stdout/stderr reach
+> **neither a terminal nor `/var/log/messages`** — they are lost unless the binary redirects them to a
+> file itself. See the jail section below.
 
 Pattern for bundled vs. user-supplied data:
 1. Ship required data (shareware content, stubs) inside the IPK
 2. At load time, `stat()` a user directory under `/media/internal/`; if it exists, switch the data path
 3. Check per-load, not just at startup — different content packs may need different directories
+
+---
+
+## How the Launcher Runs a PDK App (the jail)
+
+Running your binary directly from a novacom shell is **not** how the launcher runs it, and the
+differences bite. When `LunaSysMgr` launches a PDK app (icon tap, or
+`luna-send -n 1 palm://com.palm.applicationManager/launch '{"id":"<app-id>"}'`), it runs the binary
+in a **hybrid jail** with a restricted environment. Verified on a TouchPad (webOS 3.0.5) by catching
+the live process and reading `/proc/<pid>/{cmdline,cwd,environ,status,root}`:
+
+- **It runs jailed**, chrooted under `/var/palm/jail/<app-id>/`, as a non-root user
+  (**uid 5003 `jailuser`**, gid 5000), with `LD_PRELOAD=libpvrtc.so` and `HOME`/CWD set to the app
+  install dir. Only a curated set of mounts exists inside the jail (see below).
+- **`main` must be the native ARM binary.** A shell-script `main` (e.g. a launch wrapper that sets env
+  then `exec`s the real binary) is **not** executed — nothing runs, silently. If you need a wrapper,
+  do the work *inside* the binary instead.
+- **The launch parameters arrive as `argv`.** The app is exec'd roughly as `myapp "{ }"` (the launch
+  JSON params object). A binary that treats `argv[1]` / the last arg as a file path will choke on it.
+  Parse defensively, or ignore argv for a single-purpose app.
+- **`argv[0]` is unreliable** (may be a bare name). To self-locate (e.g. to `chdir` into the app dir so
+  run-dir-relative paths resolve), use `readlink("/proc/self/exe", ...)`, not `argv[0]`.
+- **stdout/stderr go nowhere** — not a tty, not `/var/log/messages`. To get any logs from a
+  launcher-launched app, redirect them yourself, early in `main`, to a file on writable storage:
+  ```c
+  /* do this before anything that can fail */
+  FILE *lf = fopen("/media/internal/<app-id>.log", "w");
+  if (lf) { dup2(fileno(lf), 1); dup2(fileno(lf), 2); fclose(lf);
+            setvbuf(stdout, NULL, _IONBF, 0); setvbuf(stderr, NULL, _IONBF, 0); }
+  ```
+- **`/media/internal` *is* bind-mounted read-write into the jail** (the real partition, same files),
+  so it remains your reliable writable scratch/log/save location from inside the jail. The app install
+  dir under `/media/cryptofs/...` is present but read-only.
+
+### Mounts visible inside the jail
+`/proc/<pid>/root` (read from outside, as root) shows what the app actually sees. On a TouchPad it is
+roughly: the app dir under `/media/cryptofs/apps/...` (ro), `/media/internal` (rw, bind-mounted),
+`/lib` `/bin` `/usr/{bin,lib,share,plugins}` `/etc/ssl` (ro, from `store-root`), `tmpfs` on `/tmp`
+`/dev/snd` `/dev/shm`, GPU/framebuffer device nodes (`/dev/fb1`, `/dev/kgsl-*`, `/dev/pmem_smipool`),
+a fresh `/proc`, and a small slice of `/var` (`luna`, `palm`, `run`, `ssl`). Anything **not** in that
+list (e.g. an arbitrary `/var/...` path, or `/media/cryptofs` outside your app dir) does **not** exist
+for the app — design your runtime paths accordingly.
+
+### Debugging a jailed app
+The jail is **torn down when the app exits**, and (per `system-internals` / `gotchas`) **capabilities
+are stripped so even root cannot `ptrace` it**. So:
+- Read the app's in-jail files **while it is alive**, from the host, via `/proc/<pid>/root/...`
+  (e.g. `cat /proc/$(pidof myapp)/root/media/internal/<app-id>.log`) — post-mortem the path is gone.
+- A tight `pidof` poll loop catches a short-lived process to snapshot its log/`/proc` before it dies.
+
+### Native libraries on noexec storage (loader-dependent)
+The kernel won't `mmap(PROT_EXEC)` a file from a noexec mount, so a *normally dynamically-linked* PDK
+binary needs its `.so`s on an exec partition (the app dir works). But a host that maps code itself —
+its own ELF loader copying segments into anonymous RWX memory (e.g. an Android `bionic`-linker-as-a-
+library shim) — can load `.so`s as plain data from a **noexec** partition like `/media/internal`. Only
+the top-level binary the kernel `exec`s needs the exec partition. Useful when bundling a large,
+writable, or user-supplied library payload.
 
 ---
 
@@ -367,14 +431,15 @@ The `palm-package` tool is in the **PalmSDK** (not PalmPDK) — these are two se
 ## Deployment via novacom
 
 ```bash
-# Copy IPK to device's user storage
-novacom put file:///media/internal/myapp.ipk < myapp_1.0.0_armv7.ipk
+# Easiest: palm-install talks to the device over novacom directly (no manual copy)
+palm-install myapp_1.0.0_all.ipk
 
-# Install via ipkg (not palm-install, which requires host-side tool)
+# Or copy + install on-device with ipkg:
+novacom put file:///media/internal/myapp.ipk < myapp_1.0.0_all.ipk
 novacom run file:///usr/bin/ipkg install /media/internal/myapp.ipk
 
-# View live stdout/stderr from your app
-novacom run 'tail -f /var/log/messages'
+# Reinstalling? Bump the appinfo.json "version" first — palm-install silently
+# refuses a same-or-lower version (see gotchas.md).
 
 # Direct shell access for debugging
 novacom -t open tty://
@@ -384,16 +449,20 @@ novacom -t open tty://
 
 ## Debugging PDK Apps
 
-PDK apps write stdout/stderr to the system log:
+**Run directly from a novacom shell** for live stdout — the easiest early-stage loop, before you have a
+working IPK:
 ```bash
-# On the device (via novacom shell):
-tail -f /var/log/messages | grep myapp
-
-# Or cat a log file the app wrote to its working dir:
-novacom run file:///bin/cat /media/cryptofs/apps/usr/palm/applications/com.example.myapp/app.log
+novacom run file:///media/cryptofs/apps/usr/palm/applications/com.example.myapp/myapp
 ```
 
-The app binary can also be run directly from a novacom shell for live stdout — useful for early-stage debugging before you have a working IPK workflow.
+**Launcher-launched is different.** A jailed app's stdout/stderr do **not** reach `/var/log/messages`
+(see "How the Launcher Runs a PDK App") — so for the real launch path, have the binary redirect its
+own stdout/stderr to a file on `/media/internal`, then read it:
+```bash
+# while the app is alive — the in-jail file is also reachable via /proc/<pid>/root:
+novacom run file:///bin/cat /media/internal/com.example.myapp.log
+novacom run 'cat /proc/$(pidof myapp)/root/media/internal/com.example.myapp.log'
+```
 
 Add `fprintf(stderr, ...)` liberally when diagnosing path, stat, or file-open failures — logs are the primary debugger.
 
