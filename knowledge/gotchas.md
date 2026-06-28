@@ -102,6 +102,14 @@ Apps may be put in a "jail" until the next reboot, especially if they include a 
 ### Jails have their own `/proc`
 A "hybrid jail" gets a fresh `proc` mount under `/var/palm/jail/<appid>/proc`, separate from the host `/proc`. A `mount --bind` on the host `/proc/nduid` (or any other procfs file) is invisible to a jailed process — you have to apply the same bind inside `/var/palm/jail/<appid>/proc/` too. Capabilities are also stripped, so **even root can't `ptrace` a jailed process** — `strace -p $pid` returns `Operation not permitted`. Plan debugging around log analysis, tcpdump, and direct SQLite reads instead. See `system-internals.md`.
 
+### PDK apps run jailed too — and it bites differently than JS apps
+`LunaSysMgr` launches a **PDK (native) app** in a hybrid jail under `/var/palm/jail/<appid>/` as **uid 5003 (`jailuser`)**, with `LD_PRELOAD=libpvrtc.so`, CWD = the app dir. Consequences that trip up native devs (full detail in `pdk.md` → "How the Launcher Runs a PDK App"):
+- **stdout/stderr go nowhere** — not a tty, not `/var/log/messages`. The binary must redirect them to a file on `/media/internal` itself, or you're debugging blind. (`pdk.md`'s old "stdout ends up in `/var/log/messages`" advice only holds when you run the binary directly from a novacom shell, not from the launcher.)
+- **The launch params arrive as `argv`** (`myapp "{ }"`) — a binary that reads `argv` as a file path will choke.
+- **`main` must be the ARM binary** — a shell-script `main` is silently not exec'd.
+- **`argv[0]` is unreliable** — self-locate with `readlink("/proc/self/exe")`.
+- The jail is **torn down on exit**; read an in-jail file **while the app lives** via `/proc/<pid>/root/...` (e.g. `cat /proc/$(pidof myapp)/root/media/internal/<appid>.log`). `/media/internal` is bind-mounted **rw** into the jail, so it's the reliable place to write logs/saves.
+
 ## Shell-side `luna-send` output is split between stdout and stderr
 When scripting `luna-send` calls from a shell (e.g. driving the device through `novacom run`), the `payload {...}` line containing the actual response goes to **stderr**, while only `Total time …` goes to **stdout**. Naive `luna-send … > file.json` captures almost nothing. Use `2>&1` to merge them and then grep out the payload:
 
