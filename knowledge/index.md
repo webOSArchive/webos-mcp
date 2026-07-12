@@ -20,6 +20,7 @@ This directory contains curated reference files for Palm/HP webOS development (w
 | [ls2-roles.md](ls2-roles.md) | LS2 service hub role files — how `Invalid permissions` works, the lunasend impersonation pattern for recovery/migration |
 | [mojo.md](mojo.md) | Mojo framework — the scene/assistant UI pattern for webOS 1.x and 2.x phone apps |
 | [nizovn-packages.md](nizovn-packages.md) | Community-ported Qt 5 and modern libraries enabling newer C++ software on original hardware |
+| [oauth.md](oauth.md) | OAuth on webOS via the shared broker (`oauth.wosa.link`) — sign in to modern services despite ancient TLS and browsers; the show-a-code/poll-for-tokens pattern |
 | [overview.md](overview.md) | Platform overview: history, versions, device families, and key architectural concepts |
 | [patches.md](patches.md) | webOS patches via AUSMT/Preware — modifying system files on-device |
 | [pdk.md](pdk.md) | PDK (Plug-in Development Kit) — native C/C++ apps compiled for ARM Linux |
