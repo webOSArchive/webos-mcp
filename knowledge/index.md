@@ -11,6 +11,7 @@ This directory contains curated reference files for Palm/HP webOS development (w
 | [application-launchers.md](application-launchers.md) | Launching system apps (browser, email, calendar, camera, maps, phone, contacts) via Application Manager |
 | [db8.md](db8.md) | db8 JSON database — kinds, indexes, queries, change notifications, schema validation, and permissions |
 | [enyo.md](enyo.md) | Enyo 1 — the component-based UI framework shipped on the webOS TouchPad |
+| [enyo-ui-guidelines.md](enyo-ui-guidelines.md) | HP's TouchPad Design Guidelines (2011) — the Enyo 1 / tablet UX rulebook: views & panes, sliding panes, the component catalog, notifications vs. alerts, task flows, and navigation patterns |
 | [enyo2.md](enyo2.md) | Enyo 2.x — the open-sourced successor used for LuneOS, webOS TV, and cross-platform apps |
 | [exhibition.md](exhibition.md) | Exhibition mode: full-screen always-on display when docked on a Touchstone charger |
 | [gotchas.md](gotchas.md) | Hard-won gotchas — non-obvious issues that bite developers repeatedly |
@@ -35,9 +36,11 @@ This directory contains curated reference files for Palm/HP webOS development (w
 | [tls-and-networking.md](tls-and-networking.md) | TLS and networking workarounds for the 2009-era TLS stack's incompatibility with the modern web |
 | [touch-and-gestures.md](touch-and-gestures.md) | Touch events, standard gestures, pinch-zoom, and orientation on the TouchPad (Enyo) |
 | [touch2share.md](touch2share.md) | Touch2Share — tapping two devices together to share a URL via the Seamless Transitions service |
+| [ui-guidelines.md](ui-guidelines.md) | Palm's official webOS UI Design Guidelines — scene anatomy, cards vs. scenes, the full Mojo control catalog, notifications, autoSave, and delivery specs |
 | [updater.md](updater.md) | App self-update pattern for apps distributed through the webOS Archive community |
 | [url-handlers.md](url-handlers.md) | Registering apps as URL scheme and pattern handlers |
 | [web-fetching.md](web-fetching.md) | Fetching data and files from the web: XHR, enyo.WebService, Mojo.Service.Request, and Download Manager — with caveats |
+| [zen-of-palm.md](zen-of-palm.md) | Palm's classic design philosophy (2003) — less-is-more, the sweet spot, the 80/20 rule, pragmatic innovation; the mindset webOS's UI guidelines grew out of |
 
 ---
 

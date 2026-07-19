@@ -106,6 +106,14 @@ All files in `knowledge/` are auto-discovered and served as `webos://knowledge/<
 | `webos://knowledge/enyo2` | Enyo 2.x — cross-platform build, Cordova, LuneOS, Android |
 | `webos://knowledge/pdk` | Native C/C++ PDK apps — toolchain, SDL, packaging, jail |
 
+### Design & UX
+
+| Resource | Contents |
+|----------|----------|
+| `webos://knowledge/ui-guidelines` | Palm's official webOS UI Design Guidelines (Mojo/phone) — scene anatomy, cards vs. scenes, the full Mojo control catalog with class names, notifications, autoSave, layout, and delivery specs |
+| `webos://knowledge/enyo-ui-guidelines` | HP's TouchPad Design Guidelines (Enyo/tablet) — views & panes, sliding panes, the component catalog, notifications vs. alerts, task flows, and navigation patterns |
+| `webos://knowledge/zen-of-palm` | Palm's classic design philosophy (2003) — less-is-more, the sweet spot, the 80/20 rule, pragmatic innovation; the mindset the webOS guidelines grew out of |
+
 ### Services & Backend
 
 | Resource | Contents |
