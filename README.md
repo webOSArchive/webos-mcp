@@ -40,7 +40,7 @@ This package solves that with a two-layer approach:
 Run this command once — no separate `npm install` needed:
 
 ```bash
-claude mcp add webos-mcp -s user -- npx -y webos-mcp
+claude mcp add webos-mcp -s user -- npx -y webos-mcp@latest
 ```
 
 The `-s user` flag registers the server globally (available in every project). The server starts automatically in new Claude Code sessions — you can verify it's connected with `claude mcp list`.
@@ -55,7 +55,7 @@ The `-s user` flag registers the server globally (available in every project). T
 > "webos-mcp": {
 >   "type": "stdio",
 >   "command": "npx",
->   "args": ["-y", "webos-mcp"],
+>   "args": ["-y", "webos-mcp@latest"],
 >   "env": {}
 > }
 > ```
@@ -179,7 +179,7 @@ Or manually trigger the session prompt if you're starting a webOS session outsid
 If you only want the MCP server active for specific webOS projects, register it at project scope instead:
 
 ```bash
-claude mcp add webos-mcp -s project -- npx -y webos-mcp
+claude mcp add webos-mcp -s project -- npx -y webos-mcp@latest
 ```
 
 This writes to `.mcp.json` in the project root (commit it to share with your team). Team members will be prompted to approve the server the first time they open the project.
@@ -194,7 +194,7 @@ To improve or correct anything:
 
 1. Edit the relevant `.md` file in `knowledge/`
 2. Submit a PR to [webosarchive/webos-mcp](https://github.com/webosarchive/webos-mcp)
-3. When a new version is published to npm, everyone using `npx` gets it automatically on their next session
+3. When a new version is published to npm, everyone using `npx -y webos-mcp@latest` gets it automatically on their next session. (If you registered the server without `@latest`, npx may keep using a cached copy — re-run the `claude mcp add` command above with `@latest`, or run `npm cache clean --force`.)
 
 ---
 
