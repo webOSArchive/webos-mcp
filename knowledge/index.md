@@ -32,7 +32,7 @@ This directory contains curated reference files for Palm/HP webOS development (w
 | [synergy.md](synergy.md) | Synergy framework — extending Contacts, Messaging, and Calendar with third-party accounts |
 | [system-features.md](system-features.md) | System feature overview: Exhibition mode, URL handlers, and other platform capabilities |
 | [system-internals.md](system-internals.md) | Below-the-SDK plumbing — encrypted `/var/db`, mountcrypt/NDUID dependency, boot event graph, jail `/proc`, debug-info-rich binaries, binary patching tricks |
-| [tls-and-networking.md](tls-and-networking.md) | TLS and networking workarounds for the 2009-era TLS stack's incompatibility with the modern web |
+| [tls-and-networking.md](tls-and-networking.md) | TLS and networking: native TLS 1.3 on the TouchPad via the community OpenSSL updates, plus workarounds for the stock 2009-era TLS stack on other devices |
 | [touch-and-gestures.md](touch-and-gestures.md) | Touch events, standard gestures, pinch-zoom, and orientation on the TouchPad (Enyo) |
 | [touch2share.md](touch2share.md) | Touch2Share — tapping two devices together to share a URL via the Seamless Transitions service |
 | [updater.md](updater.md) | App self-update pattern for apps distributed through the webOS Archive community |

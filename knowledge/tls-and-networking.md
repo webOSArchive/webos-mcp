@@ -2,6 +2,8 @@
 
 webOS ships with a TLS stack from 2009–2011. It cannot negotiate TLS 1.2+ connections, doesn't support modern cipher suites, and will fail to connect to virtually any HTTPS server on the modern internet. This affects all built-in networking — the browser, the download manager, XHR in apps, and most system services.
 
+> **TouchPad exception:** The HP TouchPad (webOS 3.0.5) can do TLS 1.2/1.3 natively via the OpenSSL 1.1.1w update packages and first-party app patches from [OpenSSL-legacyWebOS](https://github.com/codepoet80/OpenSSL-legacyWebOS). See Solution 1 below. The stock stack described here still applies to unpatched TouchPads, unpatched components, and all other webOS devices.
+
 ---
 
 ## The Core Problem
@@ -15,7 +17,37 @@ The result: HTTPS connections silently fail or produce unhelpful errors. HTTP wo
 
 ---
 
-## Solution 1: SSL-Bump Proxy (Preferred)
+## Solution 1: Modern TLS Updates (TouchPad — Preferred)
+
+The TouchPad and TouchPad Go (webOS 3.x) no longer need any of the workarounds below. Community-built packages install OpenSSL 1.1.1w alongside the stock stack and patch the first-party apps to use it, giving the device native TLS 1.2 and 1.3 with modern cipher suites and SNI.
+
+- **Source:** https://github.com/codepoet80/OpenSSL-legacyWebOS (the OpenSSL build and app patches)
+- **Distribution:** the Preware "modernize" feed — https://github.com/webOSArchive/preware-modernize-feed (feed URL: `http://stacks.webosarchive.org/feeds/modernize/ipkgs/`)
+- **User install guide:** https://docs.webosarchive.org/modern-tls/
+
+### How users install it
+
+In Preware (recent versions ship with the modernize feed preconfigured), search for **"TLS 1.3 Updates"** and install it. That meta-package pulls in the current root-certificates update and the individual patches, then reboots the device. Accurate device date/time is required — TLS validation fails with a wrong clock (the feed includes an `ntpdate-sync` package that syncs at boot).
+
+### What gets modern TLS after installation
+
+- **Browser** (`browser-tls13` — patches `BrowserServer`)
+- **App WebKit layer** (`luna-tls13` — patches the `LunaSysMgr`/`WebAppMgr` launcher, so XHR in Mojo/Enyo apps speaks TLS 1.3)
+- **curl** (`curl-tls13` — modern curl at `/usr/bin/curl`, stock binary backed up to `/usr/bin/curl.0.9.8-orig`)
+- **Download manager** (`downloadmgr-tls13`)
+- **Email** (`mail-tls13`, optional — EAS, IMAP, POP, and SMTP through the modern stack)
+
+### What still uses the stock TLS 1.0 stack
+
+Wi‑Fi/VPN/EAP authentication, `keymanager`, `PmNetConfigManager`, OTA/app-catalog fetches, the system `/usr/lib/libcurl.so.4`, and Node.js services intentionally remain on the original OpenSSL 0.9.8. For Node services, keep using the shell-out-to-curl pattern below — with the updates installed, curl itself is modern.
+
+**Once installed, no proxy is needed** — patched TouchPads connect to modern HTTPS servers directly, and previously configured proxies/OpenSSL workarounds can be removed. The rendering engine is unchanged, though: modern sites may still break on old JavaScript/CSS support, and bot-detection walls can still block the old WebKit.
+
+The solutions below remain necessary for **all other webOS devices** (Pre, Pixi, Veer — webOS 1.x/2.x) and for unpatched TouchPads.
+
+---
+
+## Solution 2: SSL-Bump Proxy (Other Devices / Unpatched Systems)
 
 An SSL-bumping proxy (typically Squid) sits between the webOS device and the internet. The device connects to the proxy over HTTP or old TLS; the proxy upgrades to modern TLS for the outbound connection and re-signs the server's certificate with a locally-trusted CA.
 
@@ -35,7 +67,7 @@ Set via the device's WiFi settings (proxy hostname + port). All network-aware sy
 
 ---
 
-## Solution 2: Per-Request Tool Selection
+## Solution 3: Per-Request Tool Selection
 
 Not all tools respect the system proxy equally, and some use cases (local network servers) should **bypass** the proxy. The right approach is to let the user choose per-server and route to the appropriate tool:
 
@@ -58,6 +90,8 @@ Not all tools respect the system proxy equally, and some use cases (local networ
 ## curl on webOS
 
 `/usr/bin/curl` is available on webOS devices set up for homebrew. It is significantly newer than the system's OpenSSL/TLS stack, and with `-k` (insecure), it will skip certificate verification — which is necessary when using an SSL-bump proxy (whose cert the device doesn't fully trust) or when connecting to HTTP-only servers.
+
+On a TouchPad with the TLS updates installed (Solution 1), `/usr/bin/curl` is a modern curl (7.88+) linked against OpenSSL 1.1.1w with a current CA bundle — TLS 1.3 works directly, and `-k` is only needed for self-signed certs or a bump proxy.
 
 ### Key curl flags for webOS
 
@@ -143,7 +177,7 @@ wget --no-check-certificate \
 
 ## XHR in webOS Apps (Browser/Enyo Layer)
 
-webOS apps can use `XMLHttpRequest` for HTTP calls. This goes through the WebKit networking stack, which shares the same ancient TLS as the system. Limitations:
+webOS apps can use `XMLHttpRequest` for HTTP calls. This goes through the WebKit networking stack, which shares the same ancient TLS as the system — unless the TouchPad TLS updates are installed, in which case the `luna-tls13` patch gives app XHR modern TLS 1.2/1.3. Remaining limitations (which apply even when patched):
 
 - **No custom HTTP methods**: XHR can do GET and POST but not PROPFIND, MKCOL, DELETE, or PUT (at least not reliably in all webOS WebKit versions)
 - **No proxy bypass control**: XHR respects the system proxy with no way to override it per-request
@@ -359,6 +393,9 @@ var Prefs = {
 
 ## Reference Project
 
+- **OpenSSL-legacyWebOS** — OpenSSL 1.1.1w + TLS 1.3 patches for TouchPad first-party apps (browser, app WebKit, curl, email): https://github.com/codepoet80/OpenSSL-legacyWebOS
+- **Preware modernize feed** — distributes the TLS updates and other modernized packages; feed URL `http://stacks.webosarchive.org/feeds/modernize/ipkgs/`: https://github.com/webOSArchive/preware-modernize-feed
+- **Modern TLS install guide** — end-user instructions for installing the updates via Preware: https://docs.webosarchive.org/modern-tls/
 - **webOS WebDAV Client** (`com.aventer.webdavclient`) — Enyo 1 app with Node.js service, curl/wget tool selection, per-server proxy bypass, MojoDB→localStorage migration: https://github.com/codepoet80/webos-webdavclient
 - **Squid for webOS** — SSL-bumping proxy for on-device or local-network TLS upgrade: https://github.com/webosarchive/squid-for-webos
 

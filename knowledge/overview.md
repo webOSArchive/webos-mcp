@@ -93,6 +93,6 @@ Key SDK components:
 | Preware/AUSMT system patches | `webos://knowledge/patches` |
 | App self-update (App Museum II) | `webos://knowledge/updater` |
 | Qt 5 / modern glibc PDK runtime | `webos://knowledge/nizovn-packages` |
-| TLS limitations and proxy workarounds | `webos://knowledge/tls-and-networking` |
+| TLS: TouchPad TLS 1.3 updates, limitations, proxy workarounds | `webos://knowledge/tls-and-networking` |
 | Multi-platform PWA/Cordova builds | `webos://knowledge/pwa-portability` |
 | Common gotchas | `webos://knowledge/gotchas` |

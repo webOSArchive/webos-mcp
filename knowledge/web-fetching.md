@@ -2,7 +2,7 @@
 
 webOS apps have several mechanisms for making HTTP requests. The right choice depends on the framework (Mojo vs. Enyo), whether you're fetching data or downloading a file, and whether authentication is involved.
 
-> **TLS caveat applies everywhere:** webOS's TLS stack is too old to negotiate TLS 1.2+ with most modern servers. Every approach listed below inherits this limitation. See `tls-and-networking.md` for workarounds (SSL-bump proxy, curl via a Node.js service).
+> **TLS caveat applies everywhere:** stock webOS's TLS stack is too old to negotiate TLS 1.2+ with most modern servers, and every approach listed below inherits that limitation. **Exception:** a TouchPad with the community TLS updates installed (OpenSSL 1.1.1w + first-party app patches, installed via Preware) speaks TLS 1.3 natively in the browser, app XHR, curl, the download manager, and email. See `tls-and-networking.md` for the updates and for workarounds on other devices (SSL-bump proxy, curl via a Node.js service).
 
 ---
 
@@ -45,7 +45,7 @@ req.send();
 - Cannot skip TLS certificate verification.
 - No control over `Authorization` headers beyond what the server will accept via URL-embedded credentials.
 
-Use XHR when: you want JSON or XML from a simple API, the server is HTTP (not HTTPS), or you have a working SSL-bump proxy covering all traffic.
+Use XHR when: you want JSON or XML from a simple API, the server is HTTP (not HTTPS), the device is a TouchPad with the TLS updates installed (XHR then speaks TLS 1.3 natively), or you have a working SSL-bump proxy covering all traffic.
 
 ---
 

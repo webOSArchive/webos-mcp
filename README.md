@@ -139,7 +139,7 @@ All files in `knowledge/` are auto-discovered and served as `webos://knowledge/<
 
 | Resource | Contents |
 |----------|----------|
-| `webos://knowledge/tls-and-networking` | TLS 1.0 limitations, SSL-bump proxy, HTTP workarounds |
+| `webos://knowledge/tls-and-networking` | TouchPad TLS 1.3 updates; TLS 1.0 limitations, SSL-bump proxy, HTTP workarounds for other devices |
 | `webos://knowledge/pwa-portability` | Multi-platform builds: webOS IPK + Android APK + PWA from one Enyo 2 codebase |
 
 ### Bundle

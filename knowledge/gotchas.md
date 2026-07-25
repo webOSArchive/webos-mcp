@@ -156,7 +156,7 @@ Apps have elevated privileges and can make cross-origin XHR requests without COR
 ## See Also
 
 - `webos://knowledge/alarms` — background alarm scheduling; includes the critical TouchPad workaround for background execution when screen is off
-- `webos://knowledge/tls-and-networking` — TLS 1.0 limitations and SSL-bump proxy workarounds
+- `webos://knowledge/tls-and-networking` — TLS 1.0 limitations, the TouchPad TLS 1.3 updates, and SSL-bump proxy workarounds for other devices
 - `webos://knowledge/postinst-packaging` — `palm-install` does not run postinst scripts; must use Preware or WOSQI
 - `webos://knowledge/ls2-roles` — `Invalid permissions` errors and the service-name registration model
 - `webos://knowledge/system-internals` — Encrypted `/var/db`, mountcrypt, jail `/proc`, and other below-the-SDK plumbing
