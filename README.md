@@ -134,6 +134,13 @@ All files in `knowledge/` are auto-discovered and served as `webos://knowledge/<
 | `webos://knowledge/touch2share` | Touch2Share — tap-to-share URLs over Bluetooth between TouchPads |
 | `webos://knowledge/url-handlers` | Registering an app as handler for URL patterns (reverse-engineered) |
 
+### Hardware & Accessories
+
+| Resource | Contents |
+|----------|----------|
+| `webos://knowledge/hardware-accessories` | USB & Bluetooth accessories — host mode, high-power override, storage, keyboards, gamepads; the WOSA Modernize feed utilities that unlock them; the hard limits (no BLE, no joydev) |
+| `webos://knowledge/game-controllers` | Reading USB/Bluetooth controllers from a PDK game — evdev (no joydev), the app-jail `/dev/input` fix, the DS4/USB evdev code map, reference code |
+
 ### Distribution & Packaging
 
 | Resource | Contents |

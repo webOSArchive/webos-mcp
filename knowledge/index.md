@@ -14,7 +14,9 @@ This directory contains curated reference files for Palm/HP webOS development (w
 | [enyo-ui-guidelines.md](enyo-ui-guidelines.md) | HP's TouchPad Design Guidelines (2011) — the Enyo 1 / tablet UX rulebook: views & panes, sliding panes, the component catalog, notifications vs. alerts, task flows, and navigation patterns |
 | [enyo2.md](enyo2.md) | Enyo 2.x — the open-sourced successor used for LuneOS, webOS TV, and cross-platform apps |
 | [exhibition.md](exhibition.md) | Exhibition mode: full-screen always-on display when docked on a Touchstone charger |
+| [game-controllers.md](game-controllers.md) | Reading USB and Bluetooth game controllers from a PDK game — no joydev (evdev only), the app-jail `/dev/input` fix, the DS4/USB evdev code map, and reference code |
 | [gotchas.md](gotchas.md) | Hard-won gotchas — non-obvious issues that bite developers repeatedly |
+| [hardware-accessories.md](hardware-accessories.md) | What USB and Bluetooth accessories the TouchPad can drive (host mode, high-power, storage, keyboards, gamepads) and the WOSA Modernize feed utilities that unlock them; the hard limits (no BLE, no joydev) |
 | [js-services.md](js-services.md) | Writing Node.js background services that run on-device and register on the Luna bus |
 | [just-type.md](just-type.md) | Just Type (Universal Search) integration — Quick Actions, Search Using, and db8 content search |
 | [localization.md](localization.md) | Localizing strings, app names, and HTML views; Enyo `g11n` date/number formatting |
