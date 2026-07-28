@@ -1,6 +1,6 @@
 {
   "name": "webos-mcp",
-  "version": "0.1.8",
+  "version": "0.1.10",
   "description": "MCP server providing Palm/HP webOS development context for Claude",
   "type": "module",
   "bin": {
