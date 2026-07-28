@@ -96,6 +96,7 @@ All files in `knowledge/` are auto-discovered and served as `webos://knowledge/<
 | `webos://knowledge/app-structure` | `appinfo.json`, `sources.json`, directory layout, IPK packaging |
 | `webos://knowledge/sdk-tools` | `palm-package`, `palm-install`, `palm-launch`, `novacom`, full dev workflow |
 | `webos://knowledge/gotchas` | Hard-won knowledge — things that bite every developer |
+| `webos://knowledge/windows-wsl-dev` | Driving a Windows-attached device from a WSL toolchain — `powershell.exe` interop, live log tailing, `palm-install`, one-novacom-session rule |
 
 ### UI Frameworks
 

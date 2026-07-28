@@ -42,6 +42,7 @@ This directory contains curated reference files for Palm/HP webOS development (w
 | [updater.md](updater.md) | App self-update pattern for apps distributed through the webOS Archive community |
 | [url-handlers.md](url-handlers.md) | Registering apps as URL scheme and pattern handlers |
 | [web-fetching.md](web-fetching.md) | Fetching data and files from the web: XHR, enyo.WebService, Mojo.Service.Request, and Download Manager — with caveats |
+| [windows-wsl-dev.md](windows-wsl-dev.md) | Driving a Windows-attached device from a WSL toolchain — shelling out to the devkit binaries via `powershell.exe`, live log tailing, `palm-install`, and the one-novacom-session-at-a-time constraint |
 | [zen-of-palm.md](zen-of-palm.md) | Palm's classic design philosophy (2003) — less-is-more, the sweet spot, the 80/20 rule, pragmatic innovation; the mindset webOS's UI guidelines grew out of |
 
 ---

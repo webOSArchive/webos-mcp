@@ -134,6 +134,15 @@ The `tr` one in particular has bitten install scripts that try to strip whitespa
 ### novacom Requires Device in Developer Mode
 The device must have Developer Mode enabled (available as a downloadable app or via a code found the webOS Archive) before novacom will connect to it. Without it, the device is not visible to SDK tools.
 
+### Only One novacom Session at a Time
+novacom gives **exclusive** access to the device — only one attachment can exist at once. A
+`novacom -t open tty://` shell, a `palm-log -f` tail, and a `palm-install` (or webOS Quick Install)
+all compete for the same link. If a background log/tail session is still holding novacom, an
+install will be **blocked**. Kill any running novacom/`palm-log`/`novaterm` process before
+installing a new build, and don't leave a tail running in the background "just in case." This bites
+hardest when driving the device from WSL, where backgrounded `powershell.exe` calls keep the
+Windows-side novacom process alive — see `windows-wsl-dev.md`.
+
 ### Emulator vs Device Differences
 Some behaviors differ between the emulator and real hardware:
 - Hardware sensors (accelerometer, camera, GPS) are mocked in the emulator
@@ -160,3 +169,4 @@ Apps have elevated privileges and can make cross-origin XHR requests without COR
 - `webos://knowledge/postinst-packaging` — `palm-install` does not run postinst scripts; must use Preware or WOSQI
 - `webos://knowledge/ls2-roles` — `Invalid permissions` errors and the service-name registration model
 - `webos://knowledge/system-internals` — Encrypted `/var/db`, mountcrypt, jail `/proc`, and other below-the-SDK plumbing
+- `webos://knowledge/windows-wsl-dev` — Driving a Windows-attached device from a WSL toolchain; the one-novacom-session constraint in context
