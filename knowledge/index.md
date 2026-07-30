@@ -26,6 +26,7 @@ This directory contains curated reference files for Palm/HP webOS development (w
 | [oauth.md](oauth.md) | OAuth on webOS via the shared broker (`oauth.wosa.link`) — sign in to modern services despite ancient TLS and browsers; the show-a-code/poll-for-tokens pattern |
 | [overview.md](overview.md) | Platform overview: history, versions, device families, and key architectural concepts |
 | [patches.md](patches.md) | webOS patches via AUSMT/Preware — modifying system files on-device |
+| [opengl-es-on-touchpad.md](opengl-es-on-touchpad.md) | Hardware-accelerated PDK apps — the SDL/GLES context incantation (ES1 or nothing), why surfaces come back 320x480, and porting a desktop GL 1.x renderer to OpenGL ES 1.1 |
 | [pdk.md](pdk.md) | PDK (Plug-in Development Kit) — native C/C++ apps compiled for ARM Linux |
 | [pdk-pre-touchpad-porting.md](pdk-pre-touchpad-porting.md) | Porting Pre PDK apps to TouchPad and improving |
 | [postinst-packaging.md](postinst-packaging.md) | Advanced `.ipk` packaging with `postinst`/`prerm` scripts that run as root |

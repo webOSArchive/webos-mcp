@@ -121,18 +121,51 @@ When EGL is used directly to create an OpenGL context, it does not properly inte
 SDL's GL context management integrates correctly with the 3-layer system. Use SDL as the GL context owner:
 
 ```c
-// CORRECT — no flicker
-SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 5);
-SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 6);
-SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);
-SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 0);
-SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+// CORRECT — no flicker, and actually gets a context at native resolution
+PDL_Init(0);                 // BEFORE SDL_Init
+SDL_Init(SDL_INIT_VIDEO);
 
-SDL_Surface *screen = SDL_SetVideoMode(1024, 768, 16, SDL_OPENGL | SDL_FULLSCREEN);
+SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 1);   // <-- REQUIRED
+SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+
+// 0,0,0 = desktop mode. Do NOT pass an explicit size, SDL_OPENGLES or
+// SDL_FULLSCREEN yourself — see the two traps below.
+SDL_Surface *screen = SDL_SetVideoMode(0, 0, 0, SDL_OPENGL);
+// screen->w / screen->h are now the panel's native size (1024x768 on a TouchPad)
 
 // Each frame:
 SDL_GL_SwapBuffers();    // NOT eglSwapBuffers()
 ```
+
+**Trap 1 — you must ask for a GLES *1* context.** Palm's SDL otherwise requests
+`EGL_CONTEXT_CLIENT_VERSION = 2` and adds `EGL_RENDERABLE_TYPE = ES2_BIT` to the
+config, and the TouchPad's Adreno driver refuses that combination with
+`EGL_BAD_ALLOC`. SDL reports this only as the unhelpful
+`Could not create EGL context`, for every pixel format, at every size, from
+inside or outside the app jail. Setting `SDL_GL_CONTEXT_MAJOR_VERSION` to 1
+makes SDL drop `RENDERABLE_TYPE` and pass NULL context attributes, and the
+context allocates first try. Raw EGL from the same process succeeds on all 27
+configs, which is what proves the fault is SDL's ES2 request rather than the
+driver, the jail, or permissions.
+
+**Trap 2 — ask for size 0x0.** Requesting an explicit `1024, 768` (with
+`SDL_OPENGLES | SDL_FULLSCREEN`) returns a **320x480** Palm-Pre-sized surface.
+Desktop mode returns the panel's native 1024x768, and SDL sets the fullscreen
+and GLES flags itself.
+
+**Trap 3 — do not ship `metadata.json`.** Gating an app to the TouchPad with
+`{"version":1,"devices":[101]}` puts it into **phone compatibility mode**, and
+the compositor then hands it a 320x480 surface no matter what it asks for.
+Verified by A/B on one binary: with the file 320x480, without it 1024x768.
+Counter-intuitive, since 101 *is* the TouchPad. Working GLES apps on this device
+ship no `metadata.json`.
+
+> **Method note.** All three of the above were found by `LD_PRELOAD`-logging the
+> EGL and SDL calls of a **known-working GLES app on the same device**
+> (`com.studio3d.tuxr`, Tux Racer) and diffing its call sequence against the
+> failing one. Theorising about EGL from the failure message alone produced only
+> wrong answers. When a platform API fails, find something that works on that
+> platform and diff it — before patching anything.
 
 ```c
 // WRONG — causes touch flicker

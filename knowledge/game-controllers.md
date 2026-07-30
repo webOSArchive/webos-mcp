@@ -239,3 +239,61 @@ From **https://github.com/webOSArchive/webos-touchpad-accessories**:
   your package's `postinst`
 - `webos://knowledge/system-internals` — the app jail internals (uid 5003, curated
   `/dev`, per-launch rebuild)
+
+---
+
+## The 1 Hz hotplug scan that looks like a rendering stall
+
+A game that polls `/dev/input` for hotplugged pads typically rescans once a
+second, opening `event0..N` to identify each device. **On the TouchPad that is
+expensive enough to be felt as a periodic stutter**, and it gets misdiagnosed as
+a graphics problem every time.
+
+**Measured on device:** `open()` on the TouchPad's three BUILT-IN input devices
+takes **22-71 ms each** — their drivers do real work in the open handler:
+
+| node | device | open() cost |
+|---|---|---|
+| `event0` | `gpio-keys` | ~22-36 ms |
+| `event1` | `pmic8058_pwrkey` | ~39-71 ms |
+| `event2` | `headset` | ~30-44 ms |
+
+Opening all three every second costs **166-198 ms**, i.e. a ~0.2 s hitch once a
+second. In SDL Quake this showed up as "smooth for a second or two, then stuck
+for half a second, repeating". Quake's own `host_speeds` profiler placed the
+time in the pass containing `Sys_SendKeyEvents` rather than in `gfx`, which is
+what pointed at input rather than the renderer:
+
+```
+212 tot  181 server   31 gfx      <- stall
+ 72 tot    0 server   72 gfx      <- normal frame
+```
+
+**The fix: probe each node once, then remember the answer.** Skipping a device
+*after* opening it (by name, say) does not help — the cost is in the `open()`
+itself.
+
+```c
+/* per-node "already probed and uninteresting" flags */
+static byte node_boring[MAX_NODES];
+
+for (i = 0; i < MAX_NODES; i++) {
+    if (already_held(i)) continue;
+    /* access() only stats the node; it never enters the driver, so it is cheap
+     * where open() is not. A node that disappeared forfeits its mark, so a
+     * replacement device at the same index still gets probed. */
+    if (access(path, F_OK) != 0) { node_boring[i] = 0; continue; }
+    if (node_boring[i]) continue;
+
+    fd = open(path, O_RDONLY | O_NONBLOCK);
+    ...classify...
+    if (!interesting) { node_boring[i] = 1; close(fd); continue; }
+}
+```
+
+Steady state becomes a handful of cheap `stat`s per second and zero `open()`s.
+Hotplug still works: a newly attached pad's node did not exist before, so it is
+probed on the next scan.
+
+Keep a warning in the code (`if (scan_ms >= 20) Con_Printf(...)`) — this failure
+mode presents as a renderer problem, so make it name itself.
