@@ -147,6 +147,7 @@ All files in `knowledge/` are auto-discovered and served as `webos://knowledge/<
 | Resource | Contents |
 |----------|----------|
 | `webos://knowledge/postinst-packaging` | `postinst`/`prerm` scripts, setuid helpers, upstart daemons |
+| `webos://knowledge/preware-feeds` | Publishing to a Preware feed — index & `Source` metadata, device/OS gating, version floors, and the install-time hazards of system packages |
 | `webos://knowledge/patches` | Preware/AUSMT system file patches — raw `.patch` and packaged `.ipk` |
 | `webos://knowledge/updater` | App self-update via App Museum II API |
 | `webos://knowledge/nizovn-packages` | Qt 5, modern glibc, OpenSSL ports for advanced PDK apps |

@@ -456,3 +456,4 @@ novacom run -- file://sbin/start my-daemon
 ## See Also
 
 - `webos://knowledge/patches` — for patching system files via Preware/AUSMT rather than installing a new app
+- `webos://knowledge/preware-feeds` — distributing through a Preware feed, and the extra hazards a package faces when it touches the running system (restart flags, atomic file replacement, prerm restore points)
