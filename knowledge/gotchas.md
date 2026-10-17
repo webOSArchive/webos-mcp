@@ -99,6 +99,8 @@ If you've been force-pushing files via novacom for rapid development, a full `pa
 ## Jails and Caching
 Apps may be put in a "jail" until the next reboot, especially if they include a service. The web engine aggressively caches javascript apps (particularly Enyo) between Luna restarts. This can cause confusion when troubleshooting because changes don't seem to work. When an app is jailed or cached, do a Luna restart, or if all else fails, a full reboot to ensure the user is seeing the most up-to-date code. Reboots take a long time, so a Luna restart is preferred (and works) in most cases.
 
+> **On webOS CE 3.1.0:** hold Power and choose **Luna Restart**. The power menu has it built in (Advanced Reset Options), so no patch or novacom command is needed.
+
 ### Jails have their own `/proc`
 A "hybrid jail" gets a fresh `proc` mount under `/var/palm/jail/<appid>/proc`, separate from the host `/proc`. A `mount --bind` on the host `/proc/nduid` (or any other procfs file) is invisible to a jailed process — you have to apply the same bind inside `/var/palm/jail/<appid>/proc/` too. Capabilities are also stripped, so **even root can't `ptrace` a jailed process** — `strace -p $pid` returns `Operation not permitted`. Plan debugging around log analysis, tcpdump, and direct SQLite reads instead. See `system-internals.md`.
 
@@ -134,6 +136,8 @@ The `tr` one in particular has bitten install scripts that try to strip whitespa
 ### novacom Requires Device in Developer Mode
 The device must have Developer Mode enabled (available as a downloadable app or via a code found the webOS Archive) before novacom will connect to it. Without it, the device is not visible to SDK tools.
 
+> **On webOS CE 3.1.0:** Developer Mode is on out of the box and turns itself back on at every boot, so novacom connects straight away. Turning it off lasts only until the next reboot.
+
 ### Only One novacom Session at a Time
 novacom gives **exclusive** access to the device — only one attachment can exist at once. A
 `novacom -t open tty://` shell, a `palm-log -f` tail, and a `palm-install` (or webOS Quick Install)
@@ -165,7 +169,7 @@ Apps have elevated privileges and can make cross-origin XHR requests without COR
 ## See Also
 
 - `webos://knowledge/alarms` — background alarm scheduling; includes the critical TouchPad workaround for background execution when screen is off
-- `webos://knowledge/tls-and-networking` — TLS 1.0 limitations, the TouchPad TLS 1.3 updates, and SSL-bump proxy workarounds for other devices
+- `webos://knowledge/tls-and-networking` — TLS 1.0 limitations, the TLS 1.3 updates for the TouchPad and 2.2.4 phones, and SSL-bump proxy workarounds for other devices
 - `webos://knowledge/postinst-packaging` — `palm-install` does not run postinst scripts; must use Preware or WOSQI
 - `webos://knowledge/ls2-roles` — `Invalid permissions` errors and the service-name registration model
 - `webos://knowledge/system-internals` — Encrypted `/var/db`, mountcrypt, jail `/proc`, and other below-the-SDK plumbing

@@ -860,3 +860,5 @@ npx cordova build android
 
 - `webos://knowledge/tls-and-networking` — TLS limitations on webOS; SSL-bump proxy setup for device testing
 - `webos://knowledge/enyo2` — Enyo 2.x framework reference for the code inside the multi-platform build
+
+> **On webOS CE 3.1.0:** the webOS build needs no SSL-bump proxy to test against a modern HTTPS backend, because app WebKit has OpenSSL 1.1.1w. Stock devices need the community TLS updates (TouchPad 3.0.5, 2.2.4 phones) or the proxy.

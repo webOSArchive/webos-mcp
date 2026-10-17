@@ -42,13 +42,14 @@ This directory contains curated reference files for Palm/HP webOS development (w
 | [synergy-music-connectors.md](synergy-music-connectors.md) | Streaming music providers (Spotify, Apple Music, Deezer, Tidal, Qobuz, YouTube, …) as "Music" account types for the Music+Spotify app, backed by a localhost Go daemon |
 | [system-features.md](system-features.md) | System feature overview: Exhibition mode, URL handlers, and other platform capabilities |
 | [system-internals.md](system-internals.md) | Below-the-SDK plumbing — encrypted `/var/db`, mountcrypt/NDUID dependency, boot event graph, jail `/proc`, debug-info-rich binaries, binary patching tricks |
-| [tls-and-networking.md](tls-and-networking.md) | TLS and networking: native TLS 1.3 on the TouchPad via the community OpenSSL updates, plus workarounds for the stock 2009-era TLS stack on other devices |
+| [tls-and-networking.md](tls-and-networking.md) | TLS and networking: native TLS 1.3 on the TouchPad and webOS 2.2.4 phones via the community OpenSSL updates, plus workarounds for the stock 2009-era TLS stack on other devices |
 | [touch-and-gestures.md](touch-and-gestures.md) | Touch events, standard gestures, pinch-zoom, and orientation on the TouchPad (Enyo) |
 | [touch2share.md](touch2share.md) | Touch2Share — tapping two devices together to share a URL via the Seamless Transitions service |
 | [ui-guidelines.md](ui-guidelines.md) | Palm's official webOS UI Design Guidelines — scene anatomy, cards vs. scenes, the full Mojo control catalog, notifications, autoSave, and delivery specs |
 | [updater.md](updater.md) | App self-update pattern for apps distributed through the webOS Archive community |
 | [url-handlers.md](url-handlers.md) | Registering apps as URL scheme and pattern handlers |
 | [web-fetching.md](web-fetching.md) | Fetching data and files from the web: XHR, enyo.WebService, Mojo.Service.Request, and Download Manager — with caveats |
+| [webos-ce.md](webos-ce.md) | webOS CE 3.1.0, the community TouchPad release — what it bakes in, removes and leaves stock, and how to detect it; other pages mark where CE differs with **On webOS CE 3.1.0:** callouts |
 | [windows-wsl-dev.md](windows-wsl-dev.md) | Driving a Windows-attached device from a WSL toolchain — shelling out to the devkit binaries via `powershell.exe`, live log tailing, `palm-install`, and the one-novacom-session-at-a-time constraint |
 | [zen-of-palm.md](zen-of-palm.md) | Palm's classic design philosophy (2003) — less-is-more, the sweet spot, the 80/20 rule, pragmatic innovation; the mindset webOS's UI guidelines grew out of |
 

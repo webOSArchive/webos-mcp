@@ -39,12 +39,16 @@ How the Synergy account/sync framework works under the hood: the accounts servic
 | `modifyAccount {accountId, object}` | yes | `writePermissions` | `commandTimeout: 3600` |
 | `deleteAccount {accountId}` | yes | `writePermissions` | `commandTimeout: 20`. The real work runs asynchronously in `notifyAccountDeleted` |
 | `readCredentials {accountId, name}` | no | `readPermissions` | Returns `{credentials: <value stored under name>}` |
+| `readCredentialsPublic {accountId, name}` | yes | hard-coded whitelist (`publicwhitelist.js`, QuickOffice only) | Same as `readCredentials`, for whitelisted public-bus callers |
 | `writeCredentials {accountId, name, credentials}` | no | `writePermissions` | Fires `onCredentialsChanged` without waiting for it |
 | `hasCredentials {accountId}` | no | none | `{value: bool}` from keymanager `keyInfo` |
 | `appsChanged` | no | — | Reloads the templates |
 | `restoreCompleted` / `accountsChanged` | no | — | Post-restore: calls `onCapabilitiesChanged` + `onEnabled(true)` for every account (`backup/com.palm.service.accounts` maps `restoreFinished` to `accountsChanged`) |
+| `setPrefs {deviceName}` | no | none | Merges `deviceName` into the `com.palm.palmprofile` account |
 | `notifyAccountCreated`, `notifyAccountDeleted`, `stayRunning` | no | — | Internal. `commandTimeout: 3600` |
 | `createLocalAccount` | yes | — | Open webOS/LuneOS only (not in 3.0.5). Creates the `com.palm.palmprofile` account when first-use was skipped |
+
+> **On webOS CE 3.1.0:** the accounts service is the community Open webOS/LuneOS build (1.1.0.1), so `createLocalAccount` is present, though nothing on CE calls it. When first use is skipped, `com.palm.service.palmprofile` creates the profile account ("webOS User"); a manual call to this method would name it "LuneOS".
 
 **Permission check** (`utils.js` `hasPermission`): the caller is `message.applicationID() || senderServiceName()`, with the `" <pid>"` suffix stripped. `com.palm.app.accounts` and `com.palm.service.accounts` always pass. Otherwise the caller must match an entry in the template's `readPermissions` / `writePermissions`. Entries are globs, where `*` and `?` are converted to a regex. A failed check throws `"Permission denied! <caller> is not specified in template <id> <list>"`.
 
@@ -132,6 +136,8 @@ Kind file: `app-services/com.palm.service.accounts/db/kinds/.../com.palm.account
 - Other fields: `_sync` (optional, from createAccount), `retries` (delete retry counter), `deviceName` (profile account only).
 - Read access: 3.0.5 grants `com.palm.*` plus the QuickOffice apps. Open webOS/LuneOS also grant `com.webos.*` and `org.webosports.*` (`db/permissions/.../com.palm.account`).
 
+> **On webOS CE 3.1.0:** `com.webos.*` and `org.webosports.*` callers can also read `com.palm.account:1`.
+
 ---
 
 ## Account Lifecycle
@@ -216,6 +222,8 @@ notifyAccountDeleted                      (handlers/notify-deleted.js)
 - The `onEnabled(false)`/`onDelete` loops use the same "all must succeed" counter. If one fails, the key, the syncstate and the account record are **not** removed. `stayRunning` (started for 3500 s by `setup()`) runs `resumeAccountDeletes` when it ends: every `beingDeleted` account with `retries < 5` gets `retries+1` and a new `notifyAccountDeleted`. `restoreCompleted` deletes `beingDeleted` records outright.
 - LuneOS adds `keepData` to the delete flow. `deleteAccount {keepData}` forwards it, together with `alias` and `templateId`, to `onDelete` (commit `24d2cde`/`ef97300`).
 
+> **On webOS CE 3.1.0:** `deleteAccount {keepData}` is honoured, and every `onDelete` receives `{accountId, keepData, alias, templateId}`. The system Remove Account dialog sets it from a "keep data" checkbox. `onEnabled(false)`, which runs first, does not carry `keepData`, so a transport that wipes there must handle the keep case itself.
+
 ### Callback summary
 
 | Callback | Sent by | Params | Expected reply |
@@ -245,6 +253,8 @@ notifyAccountDeleted                      (handlers/notify-deleted.js)
 | `MEMOS` | palmprofile | Consumer not found in available sources |
 | `REMOTECONTACTS` | eas (`query: queryGal`) | Only in Email app unit-test specs. A runtime consumer was not found |
 | `LOCAL.FILESTORAGE` | palmprofile | Photos app |
+
+> **On webOS CE 3.1.0:** the google, yahoo, aol and skype templates and their transports (including `com.palm.service.calendar.google`, cited on this page) are removed from the image, so those providers are absent from Add Account and those source paths don't exist on a CE device. Read them from a stock 3.0.5 rootfs. The capability consumers are unchanged.
 
 The Mojo `accounts.ui` framework also has display names for `VOICE`, `SMS` and `IM` (`[305] frameworks/accounts.ui/submission/41/javascript/capabilities.json`).
 
@@ -462,6 +472,8 @@ See `webos://knowledge/activity-manager`.
 | App ids | `com.palm.app.messaging` etc. | `org.webosports.app.messaging` etc. These ids must appear in template `readPermissions`/`writePermissions` |
 | IM templates | `onEnabled` only | also `onCreate`/`onDelete` and `prpl` (`messaging-accounts`, `[LuneOS] /usr/palm/public/accounts/`) |
 | Keymanager | proprietary | JS reimplementation, keys namespaced per caller appId |
+
+> **On webOS CE 3.1.0:** the `com.palm.account:1` read-permission and Delete (`keepData`) rows behave like the LuneOS column, and `createLocalAccount` exists but isn't wired to first use. Every other row is unchanged from 3.0.5.
 
 ---
 

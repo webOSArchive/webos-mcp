@@ -74,6 +74,8 @@ imlibpurpletransport (one resident process, /usr/bin)
 | `com.palm.imserver:1` / `com.palm.imchannel:1` | db8 (owner `com.palm.app.messaging`) | guild/network → channel tree for the Servers tab |
 | `com.palm.imretaineddata` | db8 | marker written when an account is removed with "keep data" (`IMServiceHandler::onDelete`) |
 
+> **On webOS CE 3.1.0:** "keep data" works end to end. Settings → Accounts → Remove has a checkbox that reaches `onDelete`, and the Accounts app's "Delete Account Data" page lists these markers and calls `purgeRetainedData`. On stock 3.0.5 the accounts service never forwards `keepData`.
+
 Because one bridge handles every protocol, **there are no per-connector db8 kinds**. A connector
 is told apart only by `serviceName` (`type_telegram`, `type_whatsapp`, …) (`packaging/README.md`,
 "What's in generic").
@@ -223,6 +225,8 @@ transport's self-shutdown and the respawn fight each other in a ~30 s churn loop
 is linked against a newer glibc than stock, so it needs the `synergy-glibc` loader
 (`ld-linux.so.3`) provisioned under `/media/cryptofs/synergy-glibc`. `imwrap.sh` logs FATAL if
 it's missing.
+
+> **On webOS CE 3.1.0:** the transport, launch chain and `imtransport` job are in the rootfs, and `ce-cryptofs-seed` copies `synergy-glibc`, `synergy-runtime` and the purple plugins into `/media/cryptofs` once per flash. The `imtransport` job waits for them in a pre-start gate. If the transport isn't running on CE, check `/var/log/imtransport-gate.log` and the `ce-cryptofs-seed` job before `imwrap.sh`.
 
 ---
 
@@ -576,6 +580,8 @@ Packaging rules (`packaging/messaging/postinst`, `prerm`, `lib/common.sh`):
   `ls-control scan-services` (ls-hubd only scans `.service` files at its own start), kill
   `accounts.js` so templates reload, `start imtransport`.
 
+> **On webOS CE 3.1.0:** generic is part of the image and Preware lists it as installed, so don't install it. Install only the network packages (`com.palm.synergy.{teams,telegram,…}`).
+
 **Manual deploy and test loop** (per `deploy-<svc>.sh`):
 
 ```sh
@@ -679,6 +685,8 @@ Derived from how the seven existing connectors are put together:
 | `videoplayer-webm` | WebM mime mislabel (harmless). The **autoplug shim stays off** (`MP_SHIM=1` to force) |
 | `bt-a2dp-fix`, `bt-hfg-call-patch` | Bluetooth call audio for IM calls |
 | `db8-maintenance` | db8 clean-up script |
+
+> **On webOS CE 3.1.0:** these are applied when the image is built. The dead AOL/Yahoo/Google-legacy/Skype stacks and old prpls are deleted outright, so there is no `*-disabled-backup` directory to restore from, and the codec, Bluetooth HFG/A2DP, db8-clean and Thai-font fixes are present from first boot.
 
 ---
 

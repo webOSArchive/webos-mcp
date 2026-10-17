@@ -470,6 +470,8 @@ sendIM.prototype.run = function(future) {
 
 **Note:** BusyBox `wget` on the device does NOT support `--post-data` or `--post-file`. For HTTP POST, use Node.js `http.request` directly, not `child_process.exec` + wget.
 
+> **On webOS CE 3.1.0:** for HTTPS endpoints, shell out to `/usr/bin/curl` (curl 7.88.1 with OpenSSL 1.1.1w and a current CA bundle, built in); it does GET and POST. Node's `http`/`https` and busybox wget still can't do modern TLS.
+
 ---
 
 ## HTTP in Synergy Services

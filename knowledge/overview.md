@@ -23,6 +23,9 @@ The platform is now maintained and archived by the webOS Archive project at http
 | 1.0–1.4.5 | Pre, Pixi, Pre Plus, Pixi Plus | **Mojo** | Most common legacy target |
 | 2.0–2.2.4 | Pre 2, Pre 3, Veer | Mojo + early Enyo | Transitional |
 | 3.0–3.0.5 | TouchPad | **Enyo 1** | Tablet form factor |
+| 3.1.0 CE | TouchPad | **Enyo 1** | Community Edition (2026): a repack of 3.0.5, see `webos://knowledge/webos-ce` |
+
+> **On webOS CE 3.1.0:** a TouchPad reports `platformVersion` `3.1.0` and the build string `webOS CE 3.1.0`, with the same Mojo/Enyo 1 frameworks as 3.0.5. Test for the TouchPad generation with `platformVersionMajor === 3`, not an exact `3.0.5` match or an `HP webOS` prefix.
 
 > Note: Enyo 2 was open-sourced by HP after webOS was discontinued and runs on modern browsers, but was not shipped on original webOS hardware. Most original webOS app development targets Mojo (phones) or Enyo 1 (TouchPad). Enyo2 apps can run on TouchPad on Pre3.
 
@@ -93,6 +96,6 @@ Key SDK components:
 | Preware/AUSMT system patches | `webos://knowledge/patches` |
 | App self-update (App Museum II) | `webos://knowledge/updater` |
 | Qt 5 / modern glibc PDK runtime | `webos://knowledge/nizovn-packages` |
-| TLS: TouchPad TLS 1.3 updates, limitations, proxy workarounds | `webos://knowledge/tls-and-networking` |
+| TLS: TLS 1.3 updates (TouchPad, 2.2.4 phones), limitations, proxy workarounds | `webos://knowledge/tls-and-networking` |
 | Multi-platform PWA/Cordova builds | `webos://knowledge/pwa-portability` |
 | Common gotchas | `webos://knowledge/gotchas` |

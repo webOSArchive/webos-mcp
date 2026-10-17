@@ -14,6 +14,8 @@ The PDK allows native C/C++ Linux apps to run on webOS devices. PDK apps are com
 - **Screen**: 1024×768 IPS, landscape orientation
 - **SDK**: HP webOS PDK — provides SDL 1.2, SDL_mixer, and libpdl
 
+> **On webOS CE 3.1.0:** the PDK runtime (SDL 1.2, PDL, GLES) is the stock 3.0.5 one, and the kernel is UberKernel 3.0.5-93 (still 2.6.35), so this page applies unchanged. `/etc/palm-build-info`, which the jail copies in, reads `webOS CE 3.1.0`, so don't string-match `HP webOS 3.0.5`.
+
 ---
 
 ## Toolchain
@@ -390,6 +392,8 @@ roughly: the app dir under `/media/cryptofs/apps/...` (ro), `/media/internal` (r
 a fresh `/proc`, and a small slice of `/var` (`luna`, `palm`, `run`, `ssl`). Anything **not** in that
 list (e.g. an arbitrary `/var/...` path, or `/media/cryptofs` outside your app dir) does **not** exist
 for the app — design your runtime paths accordingly.
+
+> **On webOS CE 3.1.0:** `type: "pdk"` apps also get `/dev/input` mounted read-only, and a DS4 ("Wireless Controller") event node is made world-readable; other input nodes stay 0640 root. Hybrid and game jails are unchanged. The jail's `/etc/ssl/certs/ca-certificates.crt` holds 190 current Mozilla roots, which a PDK app with its own modern TLS stack can use. CE also has OpenSSL 1.1.1w in `/usr/lib/ssl11`, but linking against it makes the app CE-only.
 
 ### Debugging a jailed app
 The jail is **torn down when the app exits**, and (per `system-internals` / `gotchas`) **capabilities

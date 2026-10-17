@@ -20,6 +20,8 @@ Paths below are relative to the `webos-synergy-revival` repo root unless stated 
 | CA store | `/etc/ssl/certs/ca-certificates.crt`. The stock copy is a 2011 stub with no ISRG Root X1. | A current bundle is a deployment prerequisite (`docs/ARCHITECTURE.md` §1). |
 | Atlas | `org.webosports.app.atlas`, a WPE browser with modern TLS | Hosts the OAuth login pages. |
 
+> **On webOS CE 3.1.0:** `/usr/bin/curl` (7.88.1 / OpenSSL 1.1.1w) and a current CA bundle are pre-installed, and the stock webview can now complete a modern handshake, though it still can't render the login pages. Node is unchanged. The only prerequisite left to install is Atlas.
+
 Design rules that follow from this (`README.md` "The transport reality", `docs/ARCHITECTURE.md`):
 
 1. **JS is orchestration only. curl does all the TLS.** `_cloudcore/httpcurl.js` runs `child_process.execFile(Config.CURL, args)`. The old private bundle at `/var/dropbox-tls/` (curl plus libs, `LD_LIBRARY_PATH`) is retired. `CURL_LD_LIBRARY_PATH` is still honoured but every config sets it to `""`.
@@ -500,6 +502,8 @@ Photo `src_big` styles all **self-authenticate**, so the aggregator's curl fetch
 
 > **Where this lives now.** `README.md` (License/attribution) says changes to the stock **core apps** (Photos / Messaging / Contacts / Phone) live in the separate **core-apps** repository. Any app-level patches still in this repo, e.g. `photos-integration/`, are "superseded and stale". Treat core-apps as the source of truth for those apps. The description below is what this repo contains and what `com.palm.synergy.generic`'s postinst applies.
 
+> **On webOS CE 3.1.0:** the QuickOffice reroute and the Photos service patches (`Utils.js`, `Sync-Manager.js`) are applied when the image is built, so a new cloud connector works with QuickOffice and Photos with nothing more to install.
+
 ### QuickOffice (`quickoffice-integration/`)
 
 Applies identically to `com.quickoffice.webos` and `com.quickoffice.ar`:
@@ -561,6 +565,8 @@ The photo provider methods live **inside the connector service**, not in a separ
 | `com.palm.synergy.<name>` | One per connector. `<name>` ∈ `box dropbox flickr gdrive hidrive kdrive koofr mega onedrive pcloud s3 yandex`. Built by `packaging/cloud/stage.sh <name>` from `packaging/cloud/<name>/control.env` (`PKG_ID`, `PKG_VERSION`, `PKG_DESC`). |
 
 The package namespace is `com.palm.synergy.*`, renamed from `org.webosports.synergy.*` in commit `f008730`. There is **no `Depends:` line**: Preware/WebOS Quick Install refuse a dependency that isn't in a subscribed feed, so install order is honour-system. Install with **Preware or WebOS Quick Install, not `palm-install`**, because `palm-install` skips the root postinst.
+
+> **On webOS CE 3.1.0:** `com.palm.synergy.generic` is built into the image (`_cloudcore` and cloud-auth are in the rootfs) and Preware lists it as installed. Don't install it; install only the `com.palm.synergy.<x>` connector.
 
 What `stage.sh` puts in a connector `.ipk`:
 
@@ -715,6 +721,8 @@ ls /usr/share/dbus-1/system-services/com.palm.service.*.service; ls-control scan
 - **Without a current CA bundle every provider fails verification.** The 2011 stub has no ISRG Root X1.
 - **Secrets and refresh tokens show up in `ps` argv** (`--data-urlencode`).
 - **The Photos aggregator's old downloader was plain HTTP on port 80.** Without `Sync-Manager.js.patch`, cloud photos never download.
+
+> **On webOS CE 3.1.0:** the current CA bundle and the patched Photos downloader are in the image, so neither of these two failures happens on CE.
 
 **OAuth and UI**
 

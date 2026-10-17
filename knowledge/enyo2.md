@@ -468,6 +468,8 @@ handleError: function(inRequest, inResponse) {
 }
 ```
 
+> **On webOS CE 3.1.0:** this request works as written against modern HTTPS servers, because app WebKit runs OpenSSL 1.1.1w with a current CA bundle. On a stock 3.0.5 or 2.2.4 device it works only with the community TLS updates installed or through a proxy; otherwise it fails the TLS handshake (`webos://knowledge/tls-and-networking`).
+
 ```javascript
 // JSONP
 var request = new enyo.JsonpRequest({url: "...", callbackName: "callback"});

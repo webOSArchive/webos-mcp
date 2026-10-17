@@ -4,6 +4,8 @@
 
 webOS patches are community-created modifications to system files — launcher configs, built-in app settings, and system UI — distributed through the AUSMT (webOS Internals Update Script Management Technology) framework. Patches are managed by **Preware** on-device and **WebOS Quick Install (WOSQI)** on desktop.
 
+> **On webOS CE 3.1.0:** the per-version `webos-patches` and `webos-kernels` feeds ship **disabled**, because they are versioned and nothing is published for 3.1.0, so patches written for 3.0.5 aren't offered by default. CE also replaces many stock files (LunaSysMgr, the launcher config, the Just Type search list, parts of luna-systemui, the browser, Device Info, Bluetooth, Accounts, Contacts, Messaging, Phone, Backup and several Enyo libs). A patch diffed against 3.0.5 for any of those will fail dry-run; regenerate it from a CE device and test there before raising `MaxWebOSVersion` to 3.1.x.
+
 **Reference repository:** [webOSArchive/webos-patches](https://github.com/webOSArchive/webos-patches)
 
 ---
@@ -140,6 +142,8 @@ mv -f /media/cryptofs/apps/usr/palm/applications/com.palm.app.maps \
 
 exit 0
 ```
+
+> **On webOS CE 3.1.0:** `com.palm.app.backup` is the working community Backup app (woce-backup), not HP's dead one. Don't use this example as-is on CE.
 
 **`prerm`:**
 ```sh
@@ -350,6 +354,8 @@ Everything else is the generic AUSMT machinery.
 **Patch log:** Always check `/media/internal/webos-patches.log` first — every AUSMT operation is logged there with timestamps, dry-run output, md5sum comparisons, and "SUCCESS" or "*** FAILED ***".
 
 **Dry-run failure:** If the patch fails dry-run, the target file has already been modified (by another patch or an OTA). Either remove conflicting patches first or update your patch to apply against the current file content.
+
+> **On webOS CE 3.1.0:** `PowerdAlerts.js` already carries the Advanced Reset Options patch, applied at build time without AUSMT tracking, and a boot job restores CE's copy of that file on every boot. Patches that touch it won't survive a reboot.
 
 **Luna not restarting:** Set `PostInstallFlags: RestartLuna` in `control`. The `killall -HUP LunaSysMgr` approach in the script is faster but less reliable — let Preware/WOSQI do it via the flag.
 

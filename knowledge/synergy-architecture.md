@@ -2,6 +2,8 @@
 
 Start here. Synergy is the account framework that lets one device account feed the stock apps: a Google account fills Contacts, Calendar and Email, and an IM account shows up in Messaging. The apps never talk to a remote service themselves. They read a shared local database, and per-account **transports** keep that database in step with the network. This page draws the whole system on one sheet, shows where each of our connector families (messaging/IM, cloud, music) plugs into it, and points at the detailed pages.
 
+> **On webOS CE 3.1.0:** the stock Google, Yahoo, AOL and Skype account types are removed from the image, so the Google example can't be reproduced on a CE device. IMAP/POP, EAS and the profile account remain, and Synergy Revival connectors install from Preware. CE bakes the Revival shared runtime (`com.palm.synergy.generic`) but no connectors. see `webos://knowledge/webos-ce`.
+
 | Page | Read it for |
 |---|---|
 | `webos://knowledge/synergy-architecture` | this overview |
@@ -113,6 +115,8 @@ A mojoservice process exits `activityTimeout` seconds after its last activity co
                                          → account record deleted   (LuneOS: + keepData flag)
 ```
 
+> **On webOS CE 3.1.0:** `keepData` is not LuneOS-only. CE's community accounts service forwards `{keepData, alias, templateId}` to every `onDelete`, and Settings → Accounts → Remove has a "keep data" checkbox that sets it.
+
 Two behaviours that surprise people:
 - **Create-time callbacks cannot fail the sign-in.** `createAccount` has already replied. If an `onCreate` fails, the notify step just stops: no `onEnabled` is sent and the command waits out its 3600 s timeout.
 - **The accounts service never deletes content.** Transports do. In the Sync library that happens on **disable** (`onEnabled(false)` soft-deletes every `syncOrder` kind); `onDelete` only removes the transport record.
@@ -128,6 +132,8 @@ The full sequence diagram, the exact payloads and the delete retry rules are in 
 | **JS mojoservice + Sync library** | stock Google calendar/contacts, CardDAV/CalDAV, the classic third-party services in `webos://knowledge/synergy` | `run-js-service` launches node with the Foundations + `mojoservice.transport.sync` frameworks. `SyncCommand` walks `getSyncOrder()`: down-sync with `getRemoteChanges` → `remote2local` transform → db8 put; up-sync with local `_rev > modnum` → `local2remote` transform → `putRemoteObjects` | its db8 sub-kinds |
 | **Native C++ bus service** | `com.palm.imap`/`pop`/`smtp` (mojomail), `com.palm.imlibpurple` | a normal LS2 service whose method names appear in the template (`onCreate → palm://com.palm.imap/accountCreated`). Same payloads, same `readCredentials {name:"common"}` | its db8 sub-kinds |
 | **Method provider / external daemon** | revival cloud connectors; music daemon | cloud: a mojoservice exposing `listFolder`/`downloadFile`/`uploadFile`/`listAlbums`/…, called on demand by the consuming app. Music: a Go HTTP server; the template has **no** callbacks | nothing (cloud: files to local paths; Photos caches downloads itself) / nothing |
+
+> **On webOS CE 3.1.0:** the stock Google calendar and contacts transports are not in the image. Read them from a stock 3.0.5 rootfs or Doctor.
 
 ---
 
@@ -201,6 +207,8 @@ Everything above was designed for 2011 endpoints. On the TouchPad, node 0.4.12 l
 
 The alternative, used outside these projects, is a hosted broker (`webos://knowledge/oauth`). The revival connectors instead require the OpenSSL-11 update and Atlas on the device. See `webos://knowledge/tls-and-networking`.
 
+> **On webOS CE 3.1.0:** modern `/usr/bin/curl` (7.88.1 / OpenSSL 1.1.1w) and a current CA bundle are built in, and the browser and app WebKit use OpenSSL 1.1.1w, so the webview can complete a TLS 1.2/1.3 handshake, though its 2011 engine still can't render modern login pages. Node is unchanged. Atlas is **not** pre-installed, so it remains the one prerequisite for the sign-in flows.
+
 ---
 
 ## Platforms
@@ -212,6 +220,8 @@ The alternative, used outside these projects, is a hosted broker (`webos://knowl
 | JS jail | third-party services jailed | `jail=off` |
 | App ids | `com.palm.app.*` | `org.webosports.app.*` (must be in template permissions) |
 | Accounts extras | — | `keepData` on delete, `createLocalAccount`, `prpl` field in IM templates |
+
+> **On webOS CE 3.1.0:** the TouchPad runs the community accounts service, so `keepData` on delete and `createLocalAccount` are present, and `com.palm.account:1` is readable by `com.webos.*` and `org.webosports.*`. The `prpl` field, bus security, jail and app-id rows are unchanged from 3.0.5.
 
 Full table: `synergy-internals`, "LuneOS Differences".
 

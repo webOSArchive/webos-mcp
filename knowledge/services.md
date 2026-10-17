@@ -56,6 +56,8 @@ this.sub = new Mojo.Service.Request("palm://com.palm.display/", {
 | `palm://com.palm.applicationManager` | `addRedirectHandler`, `removeHandlersForAppId` | Register URL handler | **Yes** |
 | `palm://org.webosinternals.ipkgservice` | `restartLuna` | Restart Luna window manager | **Yes** |
 
+> **On webOS CE 3.1.0:** Preware and its `org.webosinternals.ipkgservice` are pre-installed, so `restartLuna` is available without asking users to install anything (a privileged app ID is still required). Users also get Luna Restart in the power menu.
+
 ---
 
 ## Privileged Services
@@ -197,7 +199,8 @@ Mojo.Controller.getAppController().createStageWithCallback({
 ### Luna restart
 
 ```javascript
-// Requires com.palm.webos.* ID AND org.webosinternals.ipkgservice installed (via Preware)
+// Requires com.palm.webos.* ID AND org.webosinternals.ipkgservice installed (via Preware;
+// pre-installed on webOS CE 3.1.0)
 new Mojo.Service.Request("palm://org.webosinternals.ipkgservice", {
     method: "restartLuna"
 });

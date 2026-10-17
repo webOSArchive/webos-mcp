@@ -194,6 +194,8 @@ this.controller.serviceRequest("palm://com.palm.applicationManager", {
 // See Resource Types in the SDK for the full list
 ```
 
+> **On webOS CE 3.1.0:** Preware is the registered handler for `.ipk`, so `open` with an `.ipk` path or URL, or tapping an `.ipk` link in the browser, opens Preware to install it.
+
 ---
 
 ## Checking if an App is Installed

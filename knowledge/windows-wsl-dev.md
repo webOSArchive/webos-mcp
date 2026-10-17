@@ -29,6 +29,8 @@ constraint that boundary makes easy to trip over.
   Use **single-quoted** paths inside the PowerShell command. `cmd.exe /c` has proven unreliable
   through the WSL→Windows interop path — prefer `powershell.exe -Command`.
 
+> **On webOS CE 3.1.0:** developer mode is already on and turns itself back on at every boot.
+
 ## Two ways to watch live activity, in order of preference
 
 1. **`palm-log -f <app-id>`** — tails just that app's log lines live (`console.log` / `enyo.log` /

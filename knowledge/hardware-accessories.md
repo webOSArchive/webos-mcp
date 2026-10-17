@@ -27,6 +27,8 @@ you can actually attach, what you can't, and the two community utilities (in the
 | Bluetooth **LE** anything | ❌ impossible | The 2011 CSR radio is BR/EDR only; there is no LE PHY |
 | High-power USB device | ⚠️ needs override | ~390 mA port budget rejects a 500 mA device unless bypassed |
 
+> **On webOS CE 3.1.0:** USB Settings and Bluetooth gamepad support are built into the image and active from first boot. Nothing to install, no reboot; pair a DS4 from Bluetooth → **Other**. Drives mount at `/media/usb` (see below). The kernel is UberKernel 3.0.5-93, with the same limits listed here.
+
 The two ⚠️/❌ themes — "evdev only, UI ignores it" and "no BLE" — are the platform
 limits everything else works around. See **What does NOT work** below.
 
@@ -82,6 +84,8 @@ mount -t vfat -o utf8 /dev/sda1 /media/internal/usbdrive   # browsable in file m
 umount /media/internal/usbdrive                            # sync + unmount before unplugging
 ```
 
+> **On webOS CE 3.1.0:** CE ships a `/media/usb` mount point and USB Settings mounts drives there; `/media/internal/usbdrive` is only its fallback. Use `/media/usb` for hand mounts too. File managers that special-case `/media/internal` (Internalz) show a stick mounted inside it as an empty folder.
+
 ### IRQ-storm caveat
 
 Unplugging a device in host mode can storm the shared OTG/EHCI interrupt until the
@@ -125,6 +129,8 @@ Both are distributed through the **WOSA Modernize** Preware feed. Source and bui
 > removal script and orphans the root component, so remove through Preware/WOSQI
 > too. (USB Settings ships `"removable": false` so the launcher offers no Delete
 > button.) A reboot is required after install.
+
+> **On webOS CE 3.1.0:** don't install either utility from Preware: both are already in the image, and the feed versions are capped at webOS 3.0.x. Reinstalling the gamepad package over the baked one would also record already-modified files as its "stock" backup, so uninstalling it wouldn't restore stock.
 
 ---
 

@@ -24,6 +24,8 @@ Apps that use postinst/prerm **must** be installed via:
 
 Both of these use `ipkg` which runs the control scripts as root. Document this prominently for users — a common support issue is that users install via `palm-install` and the app's daemon/helper is never set up.
 
+> **On webOS CE 3.1.0:** Preware is pre-installed and is the handler for `.ipk` links, so users can install your package by tapping its download link in the browser, and the scripts run as root. `palm-install` still skips them.
+
 ---
 
 ## The `.ipk` Format

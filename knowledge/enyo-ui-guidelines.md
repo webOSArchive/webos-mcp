@@ -151,6 +151,8 @@ Tap an edit icon/button (in header or footer) to enter selection mode. The heade
 
 The virtual keyboard rises from the bottom and covers content beneath (the user can still scroll/tap). The focused field must **stay visible** — auto-scroll the view if needed. The keyboard offers suggestions/spell-correction, user-settable sizes (XS/S/M/L), and language layouts. Apps can pick a keyboard configuration by context: **Default** (alphanumeric), **Email**, **Form navigation**, **URL**; set the Shift key state, toggle spell-correction, or customize the Enter key label. **Cut/Copy/Paste** is built into text fields (double-tap or long-press → context menu). Search fields are a text-field variant with a search icon + hint text (a **pill** inside a toolbar, or **full-width** inside a list).
 
+> **On webOS CE 3.1.0:** the keyboard defaults to Small rather than the stock default size, so it covers less of the screen out of the box. Test that focused fields stay visible at the larger sizes too, since users can still change it.
+
 ---
 
 ## Providing Feedback

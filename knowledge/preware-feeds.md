@@ -37,6 +37,8 @@ Users add it in Preware: **Manage Feeds → URL → Compressed (gzip) on**.
 > HTTPS handshake — and if your feed is what *delivers* the TLS fix, HTTPS is a bootstrap deadlock.
 > Offer both, but publish the HTTP URL.
 
+> **On webOS CE 3.1.0:** Preware fetches feeds through a modern curl (OpenSSL 1.1.1w, current root certificates), so an HTTPS feed URL works. Keep publishing the HTTP URL for devices without the TLS updates.
+
 ### The index is the authority, not the ipk
 
 Preware reads **the index** for everything it displays and for dependency resolution. The `.ipk`'s
@@ -146,6 +148,8 @@ With Preferences → *Ignore Device Compatibility* enabled, `Max` and the device
 click-through "Incompatible Device" warning at install time. **`Min` is the only real lock.** Set all
 three, but never rely on `Max` alone to keep a package off a device that must never see it.
 
+> **On webOS CE 3.1.0:** devices report platform version `3.1.0`, so a stanza with `MaxWebOSVersion` below 3.1.0 (e.g. `3.0.5` or `3.0.9`) is hidden on CE unless the user turns on Ignore Device Compatibility. Treat TouchPad 3.1.0 as a target of its own.
+
 Both bounds are **inclusive**: the comparison helper returns false on equality, and the call sites
 are `versionNewer(platform, min)` and `versionNewer(max, platform)`. So `Min == Max == "3.0.5"`
 admits exactly 3.0.5 — an exact pin is expressible, and is the right tool for a package that swaps a
@@ -234,6 +238,8 @@ package's own version. Both, every time.
 Preware also **does not recurse into an already-satisfied dependency node**. If `A → B → C` and B is
 already installed, a new floor on `C` declared by `B` will not fire. Put the floor as a **direct
 edge** on `A` as well when you need it to reach through.
+
+> **On webOS CE 3.1.0:** the ipkg status file is pre-seeded for 11 baked packages at their baked versions: the five `*-tls13`, rootcertsupdate, ntpdate-sync, Govnah, `com.palm.synergy.generic`, the Backup app and the notifications reset-options patch. An unversioned `Depends` on any of them is already met. By the rules above, a floor above the baked version resolves to installing the feed copy over CE's. The baked Bluetooth gamepad and USB Settings have **no** status entry, so don't `Depend` on them for CE.
 
 ### Meta ("roll-up") packages
 
@@ -618,6 +624,8 @@ Automate all of these; each has caught a real bug.
 - [ ] Run that sweep at **both** settings of the `ignoreDevices` preference, since `Max` and
       `DeviceCompatibility` vanish under it and only `Min` survives
 
+> **On webOS CE 3.1.0:** add TouchPad 3.1.0 as its own target in this sweep.
+
 That last pair is the one people skip. A dependency that is gated tighter than the package depending
 on it produces a package that is visible and uninstallable — and it only appears on the specific
 device where the gates disagree.
@@ -636,6 +644,8 @@ Confirm the version really is greater than what is installed, **and** that the `
 the current `Packages`. A stale `.gz` from a partial sync is the usual culprit. If the server is
 right, the stale copy is the device's own feed cache: Update Feeds → remove and re-add the feed →
 reboot. webOS caches hard.
+
+> **On webOS CE 3.1.0:** right after first-use setup, Preware lists nothing for about 90 seconds while CE seeds its feed configuration. Wait, then Update Feeds, before debugging the server.
 
 **Driving a device over novacom:**
 

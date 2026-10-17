@@ -2,8 +2,10 @@
 
 Modern sign-in is effectively impossible to do **on** a webOS device, for two independent reasons:
 
-1. **TLS is too old.** The 2009-era stack can't complete a handshake with today's OAuth endpoints (see `webos://knowledge/tls-and-networking`). The device often can't even *reach* the provider's token endpoint. (A TouchPad with the community TLS 1.3 updates *can* reach modern endpoints — but reason 2 still applies, so the broker pattern remains necessary.)
+1. **TLS is too old.** The 2009-era stack can't complete a handshake with today's OAuth endpoints (see `webos://knowledge/tls-and-networking`). The device often can't even *reach* the provider's token endpoint. (A TouchPad or webOS 2.2.4 phone with the community TLS 1.3 updates *can* reach modern endpoints — but reason 2 still applies, so the broker pattern remains necessary.)
 2. **The browser is too old.** Neither the built-in WebView nor sideloaded browsers can render a modern consent screen — they go blank at the "Approve" step. The TLS updates don't change the rendering engine.
+
+> **On webOS CE 3.1.0:** the TLS 1.3 updates and current root certificates are built in, so apps reach `oauth.wosa.link` and other modern HTTPS endpoints directly with `enyo.xhr`/Ajax, with no SSL-bump proxy. Reason 2 still holds, so use the broker exactly as described.
 
 So the device can neither talk to the provider nor show the provider's login page. **Anything that tries to do OAuth on the device is doomed.** Don't try to embed a WebView login, don't ship the client secret, don't run a redirect listener on `127.0.0.1`.
 

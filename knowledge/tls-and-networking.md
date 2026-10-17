@@ -2,7 +2,9 @@
 
 webOS ships with a TLS stack from 2009–2011. It cannot negotiate TLS 1.2+ connections, doesn't support modern cipher suites, and will fail to connect to virtually any HTTPS server on the modern internet. This affects all built-in networking — the browser, the download manager, XHR in apps, and most system services.
 
-> **TouchPad exception:** The HP TouchPad (webOS 3.0.5) can do TLS 1.2/1.3 natively via the OpenSSL 1.1.1w update packages and first-party app patches from [OpenSSL-legacyWebOS](https://github.com/codepoet80/OpenSSL-legacyWebOS). See Solution 1 below. The stock stack described here still applies to unpatched TouchPads, unpatched components, and all other webOS devices.
+> **TouchPad and webOS 2.2.4 phone exception:** the HP TouchPad and TouchPad Go on webOS 3.0.5, and the Pre 3, Veer and Pre 2 on webOS 2.2.4, can do TLS 1.2/1.3 natively via the OpenSSL 1.1.1w update packages and first-party app patches from [OpenSSL-legacyWebOS](https://github.com/codepoet80/OpenSSL-legacyWebOS). See Solution 1 below. The stock stack described here still applies to unpatched devices, unpatched components, and everything else (webOS 1.x phones, and phones not on 2.2.4).
+
+> **On webOS CE 3.1.0:** every one of these packages is already in the image (browser, app WebKit/XHR, curl, download manager, email, root certificates, ntpdate-sync), so a CE TouchPad always has modern TLS, with nothing to install. Node.js is not upgraded. see `webos://knowledge/webos-ce`.
 
 ---
 
@@ -17,9 +19,19 @@ The result: HTTPS connections silently fail or produce unhelpful errors. HTTP wo
 
 ---
 
-## Solution 1: Modern TLS Updates (TouchPad — Preferred)
+## Solution 1: Modern TLS Updates (TouchPad and 2.2.4 Phones — Preferred)
 
-The TouchPad and TouchPad Go (webOS 3.x) no longer need any of the workarounds below. Community-built packages install OpenSSL 1.1.1w alongside the stock stack and patch the first-party apps to use it, giving the device native TLS 1.2 and 1.3 with modern cipher suites and SNI.
+The supported devices no longer need any of the workarounds below. Community-built packages install OpenSSL 1.1.1w alongside the stock stack and patch the first-party apps to use it, giving the device native TLS 1.2 and 1.3 with modern cipher suites and SNI.
+
+| Device | webOS | Status |
+|---|---|---|
+| HP TouchPad (`topaz`) | 3.0.5 | Hardware-verified |
+| HP TouchPad Go (`opal`) | 3.0.5 (Doctor a 3.0.4 Go to 3.0.5 first) | Hardware-verified; takes the TouchPad packages |
+| HP Pre 3 (`mantaray`) | 2.2.4 | Hardware-verified |
+| HP Veer (`broadway`) | 2.2.4 | Built and published, untested on hardware |
+| Palm Pre 2 (`roadrunner`) | 2.2.4 | Built and published, untested on hardware |
+
+On the phones **webOS 2.2.4 is a hard requirement**: an un-upgraded Veer (2.2.0) or Pre 2 (2.1.0) has different stock binaries from the ones the patches were built against. The patches check the build before touching anything. webOS 1.x devices (Pre, Pre Plus, Pixi, Pixi Plus) are not supported.
 
 - **Source:** https://github.com/codepoet80/OpenSSL-legacyWebOS (the OpenSSL build and app patches)
 - **Distribution:** the Preware "modernize" feed — https://github.com/webOSArchive/preware-modernize-feed (feed URL: `http://stacks.webosarchive.org/feeds/modernize/ipkgs/`)
@@ -27,7 +39,9 @@ The TouchPad and TouchPad Go (webOS 3.x) no longer need any of the workarounds b
 
 ### How users install it
 
-In Preware (recent versions ship with the modernize feed preconfigured), search for **"TLS 1.3 Updates"** and install it. That meta-package pulls in the current root-certificates update and the individual patches, then reboots the device. Accurate device date/time is required — TLS validation fails with a wrong clock (the feed includes an `ntpdate-sync` package that syncs at boot).
+In Preware (recent versions ship with the modernize feed preconfigured), search for **"TLS 1.3 Updates (TouchPad)"** (`org.webosarchive.tls-updates`) or, on a 2.2.4 phone, **"TLS 1.3 Updates (Phones)"** (`org.webosarchive.tls-updates-phone`) and install it. The phone set is one merged build (package names end in `-phone`) that picks the right board at install time. That meta-package pulls in the current root-certificates update and the individual patches, then reboots the device. Accurate device date/time is required — TLS validation fails with a wrong clock (the feed includes an `ntpdate-sync` package that syncs at boot).
+
+> **On webOS CE 3.1.0:** skip this step. The components are pre-installed and Preware lists them as installed; don't install the "TLS 1.3 Updates" meta-package on CE.
 
 ### What gets modern TLS after installation
 
@@ -37,13 +51,17 @@ In Preware (recent versions ship with the modernize feed preconfigured), search 
 - **Download manager** (`downloadmgr-tls13`)
 - **Email** (`mail-tls13`, optional — EAS, IMAP, POP, and SMTP through the modern stack)
 
+> **On webOS CE 3.1.0:** `/usr/bin/curl` is a wrapper that runs curl 7.88.1 / OpenSSL 1.1.1w from `/usr/lib/curl11` with the CA bundle preset (also reachable as `/usr/bin/curl11`). There is no `/usr/bin/curl.0.9.8-orig`.
+
 ### What still uses the stock TLS 1.0 stack
 
 Wi‑Fi/VPN/EAP authentication, `keymanager`, `PmNetConfigManager`, OTA/app-catalog fetches, the system `/usr/lib/libcurl.so.4`, and Node.js services intentionally remain on the original OpenSSL 0.9.8. For Node services, keep using the shell-out-to-curl pattern below — with the updates installed, curl itself is modern.
 
-**Once installed, no proxy is needed** — patched TouchPads connect to modern HTTPS servers directly, and previously configured proxies/OpenSSL workarounds can be removed. The rendering engine is unchanged, though: modern sites may still break on old JavaScript/CSS support, and bot-detection walls can still block the old WebKit.
+**Once installed, no proxy is needed** — patched devices connect to modern HTTPS servers directly, and previously configured proxies/OpenSSL workarounds can be removed. The rendering engine is unchanged, though: modern sites may still break on old JavaScript/CSS support, and bot-detection walls can still block the old WebKit.
 
-The solutions below remain necessary for **all other webOS devices** (Pre, Pixi, Veer — webOS 1.x/2.x) and for unpatched TouchPads.
+The solutions below remain necessary for **all other webOS devices** (webOS 1.x phones, and phones not on 2.2.4) and for unpatched TouchPads and phones.
+
+> **On webOS CE 3.1.0:** none of the workarounds below are needed for the browser, app XHR, curl, the download manager or email. The one remaining case is Node.js's own `http`/`https`, and shelling out to `/usr/bin/curl` covers that.
 
 ---
 
@@ -91,7 +109,9 @@ Not all tools respect the system proxy equally, and some use cases (local networ
 
 `/usr/bin/curl` is available on webOS devices set up for homebrew. It is significantly newer than the system's OpenSSL/TLS stack, and with `-k` (insecure), it will skip certificate verification — which is necessary when using an SSL-bump proxy (whose cert the device doesn't fully trust) or when connecting to HTTP-only servers.
 
-On a TouchPad with the TLS updates installed (Solution 1), `/usr/bin/curl` is a modern curl (7.88+) linked against OpenSSL 1.1.1w with a current CA bundle — TLS 1.3 works directly, and `-k` is only needed for self-signed certs or a bump proxy.
+On a TouchPad or 2.2.4 phone with the TLS updates installed (Solution 1), `/usr/bin/curl` is a modern curl (7.88+) linked against OpenSSL 1.1.1w with a current CA bundle — TLS 1.3 works directly, and `-k` is only needed for self-signed certs or a bump proxy.
+
+> **On webOS CE 3.1.0:** every device is in this case, with no homebrew setup. Leave out `-k` unless the server is self-signed or you're going through a bump proxy.
 
 ### Key curl flags for webOS
 
@@ -177,7 +197,9 @@ wget --no-check-certificate \
 
 ## XHR in webOS Apps (Browser/Enyo Layer)
 
-webOS apps can use `XMLHttpRequest` for HTTP calls. This goes through the WebKit networking stack, which shares the same ancient TLS as the system — unless the TouchPad TLS updates are installed, in which case the `luna-tls13` patch gives app XHR modern TLS 1.2/1.3. Remaining limitations (which apply even when patched):
+webOS apps can use `XMLHttpRequest` for HTTP calls. This goes through the WebKit networking stack, which shares the same ancient TLS as the system — unless the TLS updates are installed (TouchPad or 2.2.4 phone), in which case the `luna-tls13` patch gives app XHR modern TLS 1.2/1.3. Remaining limitations (which apply even when patched):
+
+> **On webOS CE 3.1.0:** app XHR (including `enyo.WebService` and Mojo Ajax) always has TLS 1.2/1.3. The other limitations listed here still apply.
 
 - **No custom HTTP methods**: XHR can do GET and POST but not PROPFIND, MKCOL, DELETE, or PUT (at least not reliably in all webOS WebKit versions)
 - **No proxy bypass control**: XHR respects the system proxy with no way to override it per-request
@@ -393,7 +415,7 @@ var Prefs = {
 
 ## Reference Project
 
-- **OpenSSL-legacyWebOS** — OpenSSL 1.1.1w + TLS 1.3 patches for TouchPad first-party apps (browser, app WebKit, curl, email): https://github.com/codepoet80/OpenSSL-legacyWebOS
+- **OpenSSL-legacyWebOS** — OpenSSL 1.1.1w + TLS 1.3 patches for first-party apps on the TouchPad (3.0.5) and webOS 2.2.4 phones (browser, app WebKit, curl, email): https://github.com/codepoet80/OpenSSL-legacyWebOS
 - **Preware modernize feed** — distributes the TLS updates and other modernized packages; feed URL `http://stacks.webosarchive.org/feeds/modernize/ipkgs/`: https://github.com/webOSArchive/preware-modernize-feed
 - **Modern TLS install guide** — end-user instructions for installing the updates via Preware: https://docs.webosarchive.org/modern-tls/
 - **webOS WebDAV Client** (`com.aventer.webdavclient`) — Enyo 1 app with Node.js service, curl/wget tool selection, per-server proxy bypass, MojoDB→localStorage migration: https://github.com/codepoet80/webos-webdavclient

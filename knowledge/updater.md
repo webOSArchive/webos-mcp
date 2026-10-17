@@ -349,6 +349,8 @@ new Mojo.Service.Request("palm://com.palm.applicationManager", {
 
 Preware must be installed on the device. If it isn't, the `open` call will fail silently (no crash, just `onFailure` fires). For apps targeting non-technical users, consider checking for Preware first using `applicationManager/listApps` before offering the update install option.
 
+> **On webOS CE 3.1.0:** Preware is pre-installed, so `InstallViaPreware()` always has a target. Keep the check for stock devices.
+
 ---
 
 ## Device Identification
@@ -385,6 +387,8 @@ Examples:
 - `TouchPad/3.0.5/WiFi/en_us`
 - `Pre3/2.2.4/Verizon/en_us`
 - On web (Enyo 1 fallback): `navigator.userAgent`
+
+> **On webOS CE 3.1.0:** the device string reads `TouchPad/3.1.0/WiFi/<locale>`. Treat 3.1.0 as a TouchPad version in any server-side compatibility logic.
 
 ---
 

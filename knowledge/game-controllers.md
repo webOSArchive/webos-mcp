@@ -133,6 +133,8 @@ fixes are needed; the `org.webosarchive.btgamepad` package already installs **bo
 (so a game targeting the BT DS4 needs no extra work), but you must understand them
 if you target a **USB** pad or ship a standalone game.
 
+> **On webOS CE 3.1.0:** both fixes are already in the image: `/etc/jail_pdk.conf` mounts `/dev/input`, and the DS4 udev rule is installed. A DS4 game needs no prerequisite. USB pads with other names still need their own udev rule.
+
 **1. Bind-mount `/dev/input` into the PDK jail.** The jailer config
 `/etc/jail_pdk.conf` builds a curated `/dev` with no `/dev/input`. Patch it to add
 the mount right after the existing `mkdir /dev` line (idempotently):
@@ -167,6 +169,8 @@ ships exactly this rule for `Wireless Controller`.
 > btgamepad package as a prerequisite.** For a USB-only game, replicate the two
 > fixes in your own package's postinst/udev rule.
 
+> **On webOS CE 3.1.0:** don't put `org.webosarchive.btgamepad` in `Depends`. CE bakes it without an ipkg status entry and the feed copy is capped at 3.0.x, so Preware on CE can neither see it as installed nor offer it, and the game wouldn't install. Gamepad support is already there.
+
 ---
 
 ## USB controllers, specifically
@@ -188,6 +192,8 @@ ships exactly this rule for `Wireless Controller`.
 2. The shim produces a proper gamepad evdev node named **`Wireless Controller`**
    (bustype `BUS_BLUETOOTH`); reconnect after bonding is just the **PS** button.
 3. Your game opens that node and reads the full map above — no USB power concerns.
+
+> **On webOS CE 3.1.0:** gamepad support is built in, so users skip the install and reboot and just pair the pad.
 
 **Keep the screen awake.** `PmBtEngine` dies during an active BT-HID session if the
 display sleeps (suspend churn); a fullscreen game generally prevents it, and it

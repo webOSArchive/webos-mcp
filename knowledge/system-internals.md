@@ -98,6 +98,8 @@ Notes:
 - `start on stopped finish` is the next event after `mountcrypt` runs. Use it for things that absolutely must precede every running service. `started LunaSysMgr` is later and safer for app-facing changes.
 - Don't `start on startup` unless you have a very good reason. Almost nothing is set up that early.
 
+> **On webOS CE 3.1.0:** first use is the webOS Archive account flow (skippable) and ends **without a reboot**: LunaSysMgr respawns into the normal UI, so the first boot is the only boot. `first-use-finished` is emitted fire-and-forget from a LunaSysMgr that exits immediately, and can be lost. A hook that must run after setup should start on both `first-use-finished` and `started LunaSysMgr`, and be safe to run twice.
+
 ### The "I can't reload the LS2 hub" corollary
 
 LS2 role files (see `ls2-roles.md`) are read once at hub startup. Modifying them at runtime doesn't take effect; SIGHUP is ignored; SIGUSR1 kills the hub and the watchdog may not respawn it cleanly. The pragmatic answer is "make role changes durable on disk and reboot." Boot-time event hooks are how you make platform changes appear safely.
@@ -267,6 +269,8 @@ But a useful empirical observation from real-world RE work: **some servers still
 - A handful of other legacy provider endpoints originally targeted at low-end mobile clients.
 
 So before assuming an old service is dead, try `openssl s_client` directly on the device. If you get a real cert chain back and `Verify return code: 0 (ok)`, the only remaining question is whether the application layer above is happy. (`www.amazon.com` itself requires TLS 1.2+ — the legacy kindle endpoints are an exception.)
+
+> **On webOS CE 3.1.0:** `openssl` is still the stock 0.9.8 tool, so `s_client` tests only the old stack. Apps and `/usr/bin/curl` speak TLS 1.3, so test reachability with `curl -v https://…`; the TLS 1.0 question only matters for Node.js services and the other components still on the stock stack.
 
 ---
 

@@ -122,6 +122,8 @@ new MyApp().renderInto(document.body);
 - `enyo.Pane` / `enyo.Panels` — multi-panel navigation
 - `enyo.Ajax` — XHR wrapper
 
+> **On webOS CE 3.1.0:** app WebKit uses OpenSSL 1.1.1w with current root certificates, so XHR (`enyo.WebService`, Mojo Ajax) reaches modern HTTPS endpoints directly, with no proxy (`webos://knowledge/web-fetching`).
+
 ### Moonstone / Onyx (Enyo 2 UI libraries — not on original hardware)
 
 Original webOS uses the built-in webOS styling; Moonstone and Onyx are Enyo 2 UI libraries for modern environments.
