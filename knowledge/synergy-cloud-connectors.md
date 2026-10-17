@@ -753,6 +753,7 @@ ls /usr/share/dbus-1/system-services/com.palm.service.*.service; ls-control scan
 
 ## See Also
 
+- `webos://knowledge/synergy-architecture`: one-page overview of the whole Synergy system; start here
 - `webos://knowledge/synergy-internals`: how the framework works underneath (accounts service, lifecycle, Sync library)
 - `webos://knowledge/synergy-messaging-connectors`: libpurple-based IM connectors (Messaging + Phone apps)
 - `webos://knowledge/synergy-music-connectors`: streaming music providers ("Music" account type)

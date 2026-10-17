@@ -353,6 +353,7 @@ cd service && GOOS=linux GOARCH=arm GOARM=7 CGO_ENABLED=0 \
 
 ## See Also
 
+- `webos://knowledge/synergy-architecture`: one-page overview of the whole Synergy system; start here
 - `webos://knowledge/synergy-internals`: how the framework works underneath (accounts service, lifecycle, Sync library)
 - `webos://knowledge/synergy-messaging-connectors`: libpurple-based IM connectors (Messaging + Phone apps)
 - `webos://knowledge/synergy-cloud-connectors`: cloud/file connectors (DOCUMENTS / PHOTO.UPLOAD)

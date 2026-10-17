@@ -2,6 +2,8 @@
 
 webOS Synergy is the extensible account/sync framework that backs Contacts, Messaging, and Calendar. Third-party services can add new account types that write into the native apps' data stores by extending system DB8 kinds. Official SDK documentation was sparse; what follows is distilled from two working services.
 
+For how the whole system fits together (accounts service, db8 sub-kinds, ActivityManager, and the revival connector families), see `webos://knowledge/synergy-architecture` first.
+
 **Reference projects:**
 - **webos-imessage-synergy** (`com.wosa.imessage`) — bridges iMessages from a Mac to the native Messages app
 - **webos-webcal-synergy** (`org.webosarchive.webcal`) — syncs public .ics calendar feeds into the Calendar app
@@ -826,6 +828,7 @@ And `sources.json`:
 
 ## See Also
 
+- `webos://knowledge/synergy-architecture`: one-page overview of the whole Synergy system; start here
 - `webos://knowledge/synergy-internals` — how the framework itself works: accounts service, template fields, lifecycle callbacks, mojoservice runtime, Sync library state machine
 - `webos://knowledge/synergy-messaging-connectors` — the revival IM connectors (libpurple + imlibpurpleservice: Teams, Telegram, Signal, Discord, WhatsApp, Facebook E2EE, Google Chat)
 - `webos://knowledge/synergy-cloud-connectors` — the revival cloud/file connectors (DOCUMENTS / PHOTO.UPLOAD, `_cloudcore` runtime, QuickOffice and Photos integration)

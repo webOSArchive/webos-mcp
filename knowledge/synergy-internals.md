@@ -494,6 +494,7 @@ See `webos://knowledge/activity-manager`.
 
 ## See Also
 
+- `webos://knowledge/synergy-architecture`: one-page overview of the whole Synergy system; start here
 - `webos://knowledge/synergy-messaging-connectors`: libpurple-based IM connectors (Messaging + Phone apps)
 - `webos://knowledge/synergy-cloud-connectors`: cloud/file connectors (DOCUMENTS / PHOTO.UPLOAD)
 - `webos://knowledge/synergy-music-connectors`: streaming music providers ("Music" account type)

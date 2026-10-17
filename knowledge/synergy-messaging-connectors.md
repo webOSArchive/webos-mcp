@@ -742,6 +742,7 @@ Derived from how the seven existing connectors are put together:
 
 ## See Also
 
+- `webos://knowledge/synergy-architecture`: one-page overview of the whole Synergy system; start here
 - `webos://knowledge/synergy-internals`: how the framework works underneath (accounts service, lifecycle, Sync library)
 - `webos://knowledge/synergy-cloud-connectors`: cloud/file connectors (DOCUMENTS / PHOTO.UPLOAD)
 - `webos://knowledge/synergy-music-connectors`: streaming music providers ("Music" account type)
