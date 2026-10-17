@@ -35,6 +35,11 @@ This directory contains curated reference files for Palm/HP webOS development (w
 | [sdk-tools.md](sdk-tools.md) | Command-line SDK tools for packaging, installing, and communicating with devices |
 | [services.md](services.md) | Luna bus services reference — calling built-in system services from Mojo or Enyo apps |
 | [synergy.md](synergy.md) | Synergy framework — extending Contacts, Messaging, and Calendar with third-party accounts |
+| [synergy-architecture.md](synergy-architecture.md) | **Start here for Synergy** — one-page architecture overview: accounts service, db8 parent/sub-kinds, ActivityManager triggers, the three transport shapes, and where the IM, cloud and music connectors plug in |
+| [synergy-cloud-connectors.md](synergy-cloud-connectors.md) | Cloud/file Synergy connectors from webos-synergy-revival — DOCUMENTS and PHOTO.UPLOAD accounts (Dropbox, Box, OneDrive, Google Drive, MEGA, S3, …), the shared `_cloudcore` runtime, curl/Atlas sign-in, QuickOffice and Photos integration |
+| [synergy-internals.md](synergy-internals.md) | How Synergy works underneath — accounts service, every template field, account lifecycle and callbacks, mojoservice runtime, Sync library state machine, data flow into the stock apps, LuneOS differences |
+| [synergy-messaging-connectors.md](synergy-messaging-connectors.md) | IM Synergy connectors from webos-synergy-revival — libpurple + imlibpurpleservice bridging Teams, Telegram, Signal, Discord, WhatsApp, Facebook E2EE and Google Chat into Messaging (and Phone for calls); `webos-*` signals, attachments, build/deploy |
+| [synergy-music-connectors.md](synergy-music-connectors.md) | Streaming music providers (Spotify, Apple Music, Deezer, Tidal, Qobuz, YouTube, …) as "Music" account types for the Music+Spotify app, backed by a localhost Go daemon |
 | [system-features.md](system-features.md) | System feature overview: Exhibition mode, URL handlers, and other platform capabilities |
 | [system-internals.md](system-internals.md) | Below-the-SDK plumbing — encrypted `/var/db`, mountcrypt/NDUID dependency, boot event graph, jail `/proc`, debug-info-rich binaries, binary patching tricks |
 | [tls-and-networking.md](tls-and-networking.md) | TLS and networking: native TLS 1.3 on the TouchPad via the community OpenSSL updates, plus workarounds for the stock 2009-era TLS stack on other devices |
