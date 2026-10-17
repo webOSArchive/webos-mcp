@@ -374,10 +374,10 @@ MyServiceAssistant.prototype.setup = function() {
 
 ## Node.js Environment
 
-Services run in **Node.js v0.2.x** (the version shipped with webOS varies a little per release). These are a very old versions — be aware:
+Services run in a very old Node.js, which depends on the release: **v0.2.3 on webOS 2.x phones** (per Palm's SDK services FAQ) and **v0.4.12 on the TouchPad (webOS 3.0.5)**, linked against OpenSSL 0.9.8k (`/usr/palm/nodejs/node`). Code for both families has to stay within v0.2.3. Be aware:
 
 - ES5 only — no `const`, `let`, arrow functions, Promises, etc.
-- The standard Node.js modules for v0.2.x are available (`fs`, `http`, `path`, `net`, `crypto`, etc.)
+- The standard Node.js modules for that version are available (`fs`, `http`, `path`, `net`, `crypto`, etc.)
 - **JavaScript-only** npm modules can be bundled in the service directory
 - **Native Node.js extensions** (`.node` binary add-ons) are **not allowed**
 - NPM is not available on device — bundle dependencies manually

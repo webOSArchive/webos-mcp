@@ -149,6 +149,7 @@ Different services persist to different filesystems with different durability pr
 - Soft reset / reboot: everything above persists.
 - `palm-uninstall` and `palm-install`: app's `/var/palm/data/*`, `/media/cryptofs/apps/<appid>/`, and Db8 rows under its kinds get wiped; the keymanager rows it stored don't (those live in `keys.db` and aren't auto-cleaned).
 - webOS Doctor (full reflash): `/var/*`, `/etc/*`, `/media/cryptofs/*` all wiped. `/media/internal/` (FAT user partition) is untouched.
+- The encrypted app store behind `/media/cryptofs` lives in the hidden `.palm` directory on that same media volume, and the Doctor's `AppDeletion` stage deletes it with a plain `rm`. If the VFAT volume has gone read-only (it mounts `errors=remount-ro`, and a hard power cut into recovery after heavy writes can trip it), the removals fail and the store is left **half-wiped**, yet the Doctor still reports success. After a flash, check the Doctor log for `AppDeletion: removed the appDirectory`; `Read-only file system` lines there mean the wipe failed. Erasing the USB drive (Device Info → Reset Options → Erase USB Drive) and entering recovery from a clean power-off cures it.
 
 When you're doing recovery work, drop your backups under `/media/internal/.something/` — you can browse the partition from your workstation while the device is plugged in, and you'll still find your files if you accidentally Doctor the device.
 
