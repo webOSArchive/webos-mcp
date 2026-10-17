@@ -47,6 +47,7 @@ sendIM                   // called by webOS when user sends a message
     "readPermissions": ["com.example.myservice.service", "com.palm.app.messaging"],
     "writePermissions": ["com.example.myservice.service", "com.palm.app.messaging"],
     "validator": "palm://com.example.myservice.service/checkCredentials",
+    "onCapabilitiesChanged": "palm://com.example.myservice.service/onCapabilitiesChanged",
     "loc_usernameLabel": "Your Name",
     "loc_passwordLabel": "Password",
     "icon": {"loc_32x32": "images/icon-32.png", "loc_48x48": "images/icon-48.png"},
@@ -61,7 +62,6 @@ sendIM                   // called by webOS when user sends a message
         "onCreate": "palm://com.example.myservice.service/onCreate",
         "onEnabled": "palm://com.example.myservice.service/onEnabled",
         "onDelete": "palm://com.example.myservice.service/onDelete",
-        "onCapabilitiesChanged": "palm://com.example.myservice.service/onCapabilitiesChanged",
         "onCredentialsChanged": "palm://com.example.myservice.service/onCredentialsChanged",
         "sync": "palm://com.example.myservice.service/sync",
         "sendIM": "palm://com.example.myservice.service/sendIM",
@@ -74,6 +74,8 @@ sendIM                   // called by webOS when user sends a message
 ```
 
 For calendar, the `capability` is `"CALENDAR"` and `dbkinds` lists your calendar/event kinds instead.
+
+**`onCapabilitiesChanged` goes at the template's top level**, not inside `capabilityProviders[]`. The accounts service only reads `template.onCapabilitiesChanged` (`app-services/com.palm.service.accounts/handlers/modify.js`), so a provider-level entry is never called. `onCredentialsChanged` works in either place. See `webos://knowledge/synergy-internals` for the full field table and lifecycle.
 
 ---
 
@@ -435,7 +437,7 @@ If a message record is inserted **without** a `conversations` array, the Message
 
 ## Sending Messages (sendIM)
 
-webOS pre-creates a DB8 record with `status: "pending"` before calling `sendIM`. You must flip it to `"successful"` after sending, or `"failed"` on error. Do NOT create a new record — the original pending one stays stuck forever.
+The Messaging app writes the outgoing message as a DB8 record with `status: "pending"`, `folder: "outbox"` into the kind named by the template's `dbkinds.immessage`. Nothing in the accounts service calls `sendIM` directly. It is the service's own outbox db-watch activity (see "DB-triggered activity" above) that fires the send; `sendIM` is just a conventional name for that callback. You must flip it to `"successful"` after sending, or `"failed"` on error. Do NOT create a new record — the original pending one stays stuck forever.
 
 ```javascript
 var sendIM = function(future){};
@@ -824,4 +826,8 @@ And `sources.json`:
 
 ## See Also
 
+- `webos://knowledge/synergy-internals` — how the framework itself works: accounts service, template fields, lifecycle callbacks, mojoservice runtime, Sync library state machine
+- `webos://knowledge/synergy-messaging-connectors` — the revival IM connectors (libpurple + imlibpurpleservice: Teams, Telegram, Signal, Discord, WhatsApp, Facebook E2EE, Google Chat)
+- `webos://knowledge/synergy-cloud-connectors` — the revival cloud/file connectors (DOCUMENTS / PHOTO.UPLOAD, `_cloudcore` runtime, QuickOffice and Photos integration)
+- `webos://knowledge/synergy-music-connectors` — streaming music providers as "Music" account types for the Music+Spotify app
 - `webos://knowledge/js-services` — full reference for writing Node.js Luna services (Synergy services are a specialised form of these)
