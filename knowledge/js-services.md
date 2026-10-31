@@ -621,4 +621,5 @@ luna-send -n 1 palm://com.palmdts.helloworld.service/hello '{"name":"webOS"}'
 ## See Also
 
 - `webos://knowledge/services` — quick reference for *calling* built-in Luna services from app code (the client side)
+- `webos://knowledge/audio-playback` — a service that streams and plays audio through `gst-launch-0.10`, including child-process signalling in the jail
 - `webos://knowledge/synergy` — specialised Node.js services that integrate with Contacts, Messaging, and Calendar

@@ -150,6 +150,8 @@ type MusicProvider interface {
 | **Internet Archive** | none | — | `advancedsearch` + metadata API | first playable audio file URL | Always registered |
 | **YouTube (Music)** | none in practice | `youtube-oauth.json` only if `/ytauth/*` device-code is used | InnerTube WEB client search | InnerTube **ANDROID_VR** client + anonymous visitorData session gives un-ciphered itag 140 (AAC) / 251 (Opus); `ytcipher.go` (goja) is the fallback | Always ready (`providerReady`), but **there is no account template / connector ipk** (see Gotchas) |
 
+**SoundCloud note (2026-10):** SoundCloud has since stopped offering mp3 (progressive or HLS) for almost every track. What remains is AAC in fragmented MP4 over HLS (`aac_160k`, some tracks only `aac_96k`), plus an `abr_sq` preset (`audio/mpegurl`) that returns 404 without a login. Watch out for a test like `mime_type.indexOf('mpeg')`, which also matches `audio/mpegurl`. A provider that picks only mp3 will find almost nothing to play. Repackaging the fMP4 segments to ADTS for gst is covered in `audio-playback.md`.
+
 Apple Music, Tidal, Qobuz and Deezer full-track playback all require a paid subscription with that service (`CHANGELOG.md` "Known limitations"; Tidal's PKCE note is in `service/tidaldl.go`). `docs/MUSIC-CONNECTORS.md`'s table says Apple Music is "not feasible". That is out of date: later commits a755091 and 51155be added Widevine playback.
 
 **DRM / secrets notes (described from the code, not endorsed):**

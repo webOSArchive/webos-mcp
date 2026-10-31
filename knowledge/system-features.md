@@ -150,6 +150,32 @@ AppAssistant.prototype.createDashboard = function() {
 
 Use `setTimeout` inside a dashboard scene for periodic updates — but note **`setTimeout` only fires while the device is awake**. For reliable background wake-up when the device may be sleeping, use the Alarms service (see `alarms.md`).
 
+### Dashboard from a plain web app (no Mojo, no Enyo)
+
+A `"type": "web"` app that loads neither framework can still open a dashboard. Enyo 1's `enyo.Dashboard` is a thin layer over the following calls (`/usr/palm/frameworks/enyo/1.0/framework/source/palm/system/windows/agent.js` and `events.js` on the device):
+
+```javascript
+// Open: an absolute URL, plus window attributes as JSON. "icon" is the small status-bar icon.
+var dash = window.open(appDir + 'dashboard.html', 'myapp-dashboard',
+    'attributes=' + JSON.stringify({ window: 'dashboard', icon: 'icon-sm.png' }));
+
+// Card minimized / maximized: LunaSysMgr calls these on the app window.
+window.Mojo = window.Mojo || {};
+Mojo.stageDeactivated = function () { /* minimized, or another app in front */ };
+Mojo.stageActivated   = function () { /* back in front */ };
+
+// From the dashboard: bring the app's card forward.
+window.opener.PalmSystem.activate();
+```
+
+- **The dashboard page must call `PalmSystem.stageReady()`**, as every window must. Without it the dashboard appears as an empty slot, and `/var/log/messages` shows `timed out in waiting for stageReady: …/dashboard.html`. Enyo's own `dashboard.html` gets this for free from `enyo.js`.
+- A dashboard page in the app's own folder is same-origin, so it can call `window.opener.someObject` directly. Enyo uses `postMessage` only because its `dashboard.html` lives in the framework directory.
+- Leave out Enyo's `webosDragMode: "manual"` and the system handles swipe-to-dismiss itself.
+- **Telling a swipe-away from your own `close()`:** the dashboard's `unload` fires in both cases, and it fires *after* `close()` has returned. So a flag set before `close()` and cleared after it is already false by then. Mark the window object itself (`dash.closedByApp = true; dash.close();`), and have the page pass `window` back in its `unload` handler.
+- Dashboards also appear on the lock screen.
+
+Working example: SoundCloud Player 4.5.0 (`dashboard.html`, `js/sc-dashboard.js` in [alan-morford/soundcloudplayer](https://github.com/alan-morford/soundcloudplayer)), a now-playing panel with artwork and back/play-pause/next.
+
 ### Background app guidelines
 
 - Poll as infrequently as possible; use lengthening intervals when backgrounded
