@@ -75,6 +75,9 @@ onSuccess: function(response) {
 }
 ```
 
+### `child.kill()` from a jailed service doesn't deliver every signal
+Seen on a TouchPad Go: in a JS service, `ChildProcess.kill('SIGSTOP')` worked, but `kill('SIGCONT')` and `kill('SIGKILL')` silently did nothing, so processes you thought you had killed kept running. Signal through the shell instead: `cp.spawn('/bin/sh', ['-c', 'kill -CONT ' + pid + '; kill -9 ' + pid])`. See `audio-playback.md`.
+
 ### Service Not Found Errors
 If a Luna service call fails with "service not found" or "unknown method":
 1. Verify the service URI — it must end with `/`
@@ -88,7 +91,7 @@ Subscription-based service calls (`subscribe: true`) keep a persistent connectio
 ## Packaging & Installation
 
 ### Version Must Increment
-`palm-install` will silently refuse to install a package if the version string lower than what's already installed. Increment the version in `appinfo.json` when testing installation from scratch.
+Installing a package whose version is lower than the installed one does nothing, and nothing says so. Both `palm-install` and Preware report success (`/var/log/messages` shows ipkg `status: SUCCESS`) while the newer version stays installed. Increment the version in `appinfo.json` (and `packageinfo.json` for a package with a service). To deliberately install an older build, for example to test an update check, remove the app first with `palm-install -r <app-id>`, which also clears its localStorage.
 
 ### cryptofs vs usb Storage
 Apps installed normally go to `/media/cryptofs/` (encrypted storage). Apps may create files on `/media/internal/`. Some system paths differ between these. When spelunking with novacom, check both locations if you can't find what you expect.
@@ -128,6 +131,8 @@ The TouchPad's BusyBox does **not** support several common GNU options. Workarou
 | `tr -d '[:space:]'` | Deletes literal `[`, `:`, `s`, `p`, `a`, `c`, `e`, `]` | `tr -d ' \t\r\n'` |
 | `head -c 200 file` | `head: invalid option -- 'c'` | `dd if=file bs=1 count=200 2>/dev/null` |
 | `find -regex …` with alternation | May silently miss matches | List branches separately |
+| `grep -r --include='*.js' …` | `grep: unrecognized option '--include=*.js'` | Loop over the files: `for f in *.js; do grep -n PAT $f; done` |
+| `mkfifo` | `applet not found` | Feed a child's stdin from Node instead of a named FIFO |
 
 The `tr` one in particular has bitten install scripts that try to strip whitespace from control files — see `postinst-packaging.md`.
 

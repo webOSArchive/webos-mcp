@@ -6,6 +6,7 @@ This directory contains curated reference files for Palm/HP webOS development (w
 |------|-------------|
 | [activity-manager.md](activity-manager.md) | Activity Manager — scheduling, triggering, and lifecycle management for background service tasks |
 | [alarms.md](alarms.md) | Background timers and alarms using the power management service (`com.palm.power`) |
+| [audio-playback.md](audio-playback.md) | What `<audio>` can't play (AAC/MP4, modern https) and the working alternative: a JS service streaming HLS through `gst-launch-0.10`, fMP4→ADTS repackaging, pause/seek/position/volume, and the `suspend-sink` and `child.kill()` traps |
 | [app-structure.md](app-structure.md) | Directory layout and required files for a Mojo app package |
 | [application-events.md](application-events.md) | Enyo `ApplicationEvents` component — rotation, activation, relaunch, back gesture, and key events |
 | [application-launchers.md](application-launchers.md) | Launching system apps (browser, email, calendar, camera, maps, phone, contacts) via Application Manager |

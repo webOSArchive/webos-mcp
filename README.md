@@ -122,6 +122,7 @@ All files in `knowledge/` are auto-discovered and served as `webos://knowledge/<
 | `webos://knowledge/services` | Luna built-in services quick reference; privileged service calls |
 | `webos://knowledge/js-services` | Writing Node.js background services that register on the Luna bus |
 | `webos://knowledge/synergy` | Synergy account/sync framework — Contacts, Messaging, Calendar integration |
+| `webos://knowledge/audio-playback` | Playing audio `<audio>` can't — streaming HLS (incl. fragmented-MP4 AAC) from a JS service through `gst-launch-0.10`, with pause/seek/volume and the traps |
 | `webos://knowledge/ls2-roles` | LS2 hub role files — service-name registration, the lunasend impersonation pattern for recovery/migration |
 
 ### System Features
